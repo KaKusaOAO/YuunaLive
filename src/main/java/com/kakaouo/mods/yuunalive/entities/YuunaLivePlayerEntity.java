@@ -72,7 +72,7 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         }
 
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
-        this.targetSelector.add(2, new RevengeGoal(this, new Class[0]).setGroupRevenge(ZombifiedPiglinEntity.class));
+        this.targetSelector.add(2, new RevengeGoal(this).setGroupRevenge(ZombifiedPiglinEntity.class));
         this.targetSelector.add(1, new YuunaLivePlayerPickupItemGoal(this));
     }
 

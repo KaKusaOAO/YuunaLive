@@ -36,7 +36,7 @@ public class YuunaLivePlayerFindMobGoal extends Goal {
 
     @Override
     public boolean canStart() {
-        return entity.getRandom().nextFloat() < 0.25f * 1f &&
+        return entity.getRandom().nextFloat() < 0.25f * 0.05f &&
                 !entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), e -> predicate.test(e) && e.distanceTo(entity) > 8).isEmpty();
     }
 

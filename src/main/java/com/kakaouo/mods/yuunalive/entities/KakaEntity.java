@@ -52,7 +52,7 @@ public class KakaEntity extends YuunaLivePlayerEntity {
         super.initCustomGoals();
         this.goalSelector.add(6, new YuunaLivePlayerFindMobGoal(this, GinaChenEntity.class));
         this.targetSelector.add(2, new ActiveTargetGoal<>(this, MobEntity.class, 0,
-                false, false, entity -> !(entity instanceof GinaChenEntity)));
+                false, false, entity -> !(entity instanceof GinaChenEntity || entity instanceof YuunaEntity)));
     }
 
     @Override
