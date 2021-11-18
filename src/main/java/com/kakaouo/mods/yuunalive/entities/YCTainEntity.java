@@ -8,20 +8,20 @@ import net.minecraft.world.World;
 
 import java.util.Locale;
 
-public class YunariEntity extends YuunaLivePlayerEntity {
-    public static final String NAME = "yunari930";
-    public static final String NICKNAME = "洛娜";
+public class YCTainEntity extends YuunaLivePlayerEntity {
+    public static final String NAME = "YingChao";
+    public static final String NICKNAME = "天天";
 
     public static final Identifier ID = YuunaLive.id(NAME.toLowerCase(Locale.ROOT));
-    public static final EntityType<YunariEntity> TYPE = getType(ID, YunariEntity::new);
+    public static final EntityType<YCTainEntity> TYPE = getType(ID, YCTainEntity::new);
 
-    protected YunariEntity(EntityType<YunariEntity> entityType, World world) {
+    protected YCTainEntity(EntityType<YCTainEntity> entityType, World world) {
         super(entityType, world);
     }
 
     @Override
     public Identifier getTexture() {
-        return YuunaLive.id("textures/entities/yunari/1.png");
+        return YuunaLive.id("textures/entities/yc/1.png");
     }
 
     @Override

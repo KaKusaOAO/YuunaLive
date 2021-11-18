@@ -35,7 +35,10 @@ public class YuunaLive implements ModInitializer {
                 GinaChenEntity.TYPE,
                 KiuryilEntity.TYPE,
                 YunariEntity.TYPE,
-                KakaEntity.TYPE
+                KakaEntity.TYPE,
+                YCTainEntity.TYPE,
+                YuruEntity.TYPE,
+                YuunaEntity.TYPE
         }) {
             Identifier id = Registry.ENTITY_TYPE.getId(type);
             Identifier itemId = id("spawn_egg_" + id.getPath());

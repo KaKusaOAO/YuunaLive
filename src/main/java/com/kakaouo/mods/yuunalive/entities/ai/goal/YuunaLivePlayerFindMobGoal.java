@@ -16,12 +16,18 @@ public class YuunaLivePlayerFindMobGoal extends Goal {
     private YuunaLivePlayerEntity entity;
     private Class<? extends Entity> entityClass;
     private Predicate<? super Entity> predicate;
+    private double findRange = 32.0;
 
     public YuunaLivePlayerFindMobGoal(YuunaLivePlayerEntity entity, Class<? extends Entity> entityClass, Predicate<? super Entity> predicate) {
         this.entity = entity;
         this.entityClass = entityClass;
         this.predicate = predicate;
         this.setControls(EnumSet.of(Control.MOVE, Control.LOOK, Control.JUMP));
+    }
+
+    public YuunaLivePlayerFindMobGoal findRange(double range) {
+        findRange = range;
+        return this;
     }
 
     public YuunaLivePlayerFindMobGoal(YuunaLivePlayerEntity entity, Class<? extends Entity> entityClass) {
@@ -31,7 +37,7 @@ public class YuunaLivePlayerFindMobGoal extends Goal {
     @Override
     public boolean canStart() {
         return entity.getRandom().nextFloat() < 0.25f * 0.05f &&
-                !entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(32.0), e -> predicate.test(e) && e.distanceTo(entity) > 8).isEmpty();
+                !entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), e -> predicate.test(e) && e.distanceTo(entity) > 8).isEmpty();
     }
 
     @Override
@@ -42,7 +48,7 @@ public class YuunaLivePlayerFindMobGoal extends Goal {
 
     @Override
     public void tick() {
-        List<? extends Entity> list = entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(32.0D), predicate);
+        List<? extends Entity> list = entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), predicate);
         if (!list.isEmpty()) {
             Entity e = list.get(0);
             entity.getLookControl().lookAt(e, 10.0F, (float)entity.getLookPitchSpeed());

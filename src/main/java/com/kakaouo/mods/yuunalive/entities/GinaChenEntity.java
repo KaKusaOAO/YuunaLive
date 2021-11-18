@@ -22,6 +22,7 @@ import java.util.UUID;
 
 public class GinaChenEntity extends YuunaLivePlayerEntity {
     public static final String NAME = "Gina_chen";
+    public static final String NICKNAME = "晴天";
 
     public static final Identifier ID = YuunaLive.id(NAME.toLowerCase(Locale.ROOT));
     public static final EntityType<GinaChenEntity> TYPE = getType(ID, GinaChenEntity::new);
@@ -44,5 +45,10 @@ public class GinaChenEntity extends YuunaLivePlayerEntity {
     @Override
     public String getPlayerName() {
         return NAME;
+    }
+
+    @Override
+    public String getNickName() {
+        return NICKNAME;
     }
 }

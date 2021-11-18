@@ -2,6 +2,7 @@ package com.kakaouo.mods.yuunalive.entities;
 
 import com.kakaouo.mods.yuunalive.YuunaLive;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerBowAttackGoal;
+import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerFindMobGoal;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerPickupItemGoal;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
@@ -21,7 +22,10 @@ import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.*;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
@@ -59,6 +63,14 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
     protected void initCustomGoals() {
         this.goalSelector.add(1, new SwimGoal(this));
         this.goalSelector.add(2, new MeleeAttackGoal(this, 1.0, false));
+
+        if(isAttractedByYuuna()) {
+            this.goalSelector.add(3, new YuunaLivePlayerFindMobGoal(this, YuunaEntity.class).findRange(128));
+        }
+        if(doesAttackYuuna()) {
+            this.targetSelector.add(2, new ActiveTargetGoal<>(this, YuunaEntity.class, true));
+        }
+
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(2, new RevengeGoal(this, new Class[0]).setGroupRevenge(ZombifiedPiglinEntity.class));
         this.targetSelector.add(1, new YuunaLivePlayerPickupItemGoal(this));
@@ -68,9 +80,32 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
 
     public abstract String getPlayerName();
 
+    public abstract String getNickName();
+
+    public boolean isAttractedByYuuna() {
+        return true;
+    }
+
+    public boolean doesAttackYuuna() {
+        return false;
+    }
+
     @Override
     public Text getName() {
-        return new LiteralText(getPlayerName());
+        MutableText playerName = new LiteralText(getPlayerName());
+        MutableText nickName = new LiteralText(getNickName()).formatted(getNickNameColor());
+
+        if(this instanceof YuunaEntity) {
+            playerName.formatted(Formatting.LIGHT_PURPLE);
+            nickName.formatted(Formatting.BOLD);
+        }
+
+        MutableText nickTag = new LiteralText("").append(new TranslatableText("[%s] ", nickName).formatted(Formatting.GREEN));
+        return nickTag.append(playerName);
+    }
+
+    public Formatting getNickNameColor() {
+        return Formatting.AQUA;
     }
 
     @Override

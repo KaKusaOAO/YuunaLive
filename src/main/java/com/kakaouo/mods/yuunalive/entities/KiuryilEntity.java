@@ -9,6 +9,7 @@ import java.util.Locale;
 
 public class KiuryilEntity extends YuunaLivePlayerEntity {
     public static final String NAME = "Kiuryil2595";
+    public static final String NICKNAME = "橘子";
 
     public static final Identifier ID = YuunaLive.id(NAME.toLowerCase(Locale.ROOT));
     public static final EntityType<KiuryilEntity> TYPE = getType(ID, KiuryilEntity::new);
@@ -25,5 +26,10 @@ public class KiuryilEntity extends YuunaLivePlayerEntity {
     @Override
     public String getPlayerName() {
         return NAME;
+    }
+
+    @Override
+    public String getNickName() {
+        return NICKNAME;
     }
 }
