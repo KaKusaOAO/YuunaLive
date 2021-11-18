@@ -1,6 +1,7 @@
 package com.kakaouo.mods.yuunalive.entities;
 
 import com.kakaouo.mods.yuunalive.YuunaLive;
+import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerPickupMobGoal;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.util.Identifier;
@@ -27,6 +28,7 @@ public class YunariEntity extends YuunaLivePlayerEntity {
     @Override
     protected void initCustomGoals() {
         super.initCustomGoals();
+        this.goalSelector.add(1, new YuunaLivePlayerPickupMobGoal(this, KakaEntity.class));
         this.targetSelector.add(2, new ActiveTargetGoal<>(this, KiuryilEntity.class, true));
     }
 

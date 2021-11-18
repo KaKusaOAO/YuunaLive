@@ -3,6 +3,7 @@ package com.kakaouo.mods.yuunalive.entities;
 import com.kakaouo.mods.yuunalive.YuunaLive;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -42,8 +43,8 @@ public class YuunaEntity extends YuunaLivePlayerEntity {
     }
 
     @Override
-    public Formatting getNickNameColor() {
-        return Formatting.LIGHT_PURPLE;
+    public TextColor getNickNameColor() {
+        return TextColor.fromFormatting(Formatting.LIGHT_PURPLE);
     }
 
     @Override

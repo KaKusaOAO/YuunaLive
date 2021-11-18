@@ -4,8 +4,11 @@ import com.kakaouo.mods.yuunalive.YuunaLive;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerBowAttackGoal;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerFindMobGoal;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerPickupItemGoal;
+import com.kakaouo.mods.yuunalive.util.KakaUtils;
 import com.mojang.authlib.GameProfile;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.goal.*;
@@ -20,17 +23,25 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.*;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
+
+import java.net.ServerSocket;
 
 public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements RangedAttackMob {
     private final YuunaLivePlayerBowAttackGoal bowAttackGoal = new YuunaLivePlayerBowAttackGoal(this, 1.0D, 20, 15.0F);
@@ -72,8 +83,12 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         }
 
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
-        this.targetSelector.add(2, new RevengeGoal(this).setGroupRevenge(ZombifiedPiglinEntity.class));
+        this.targetSelector.add(2, new RevengeGoal(this, this.getClass()).setGroupRevenge(ZombifiedPiglinEntity.class));
         this.targetSelector.add(1, new YuunaLivePlayerPickupItemGoal(this));
+    }
+
+    public boolean doesChinFacing() {
+        return false;
     }
 
     public abstract Identifier getTexture();
@@ -93,7 +108,8 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
     @Override
     public Text getName() {
         MutableText playerName = new LiteralText(getPlayerName());
-        MutableText nickName = new LiteralText(getNickName()).formatted(getNickNameColor());
+        MutableText nickName = new LiteralText(getNickName());
+        nickName.setStyle(nickName.getStyle().withColor(getNickNameColor()));
 
         if(this instanceof YuunaEntity) {
             playerName.formatted(Formatting.LIGHT_PURPLE);
@@ -104,8 +120,8 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         return nickTag.append(playerName);
     }
 
-    public Formatting getNickNameColor() {
-        return Formatting.AQUA;
+    public TextColor getNickNameColor() {
+        return TextColor.fromFormatting(Formatting.AQUA);
     }
 
     @Override
@@ -115,6 +131,26 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         if (!this.world.isClient) {
             this.updateAttackType();
         }
+    }
+
+    private boolean panicking = false;
+
+    public void setPanicking(boolean flag) {
+        panicking = flag;
+    }
+
+    public boolean isPanicking() {
+        return panicking;
+    }
+
+    @Override
+    public boolean canMoveVoluntarily() {
+        return super.canMoveVoluntarily() && !isPanicking();
+    }
+
+    @Override
+    public boolean canBeControlledByRider() {
+        return false;
     }
 
     public void updateAttackType() {
@@ -164,6 +200,10 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         return super.getPose();
     }
 
+    public SoundEvent getPanicSound() {
+        return null;
+    }
+
     @Override
     public void tickMovement() {
         if (!this.world.isClient && this.isAlive() && this.canMoveVoluntarily()) {
@@ -210,6 +250,24 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
             this.forwardSpeed = 0.0F;
         }
 
+        if(this.isPanicking()) {
+            float dx = (getRandom().nextFloat() - 0.5f);
+            float dy = (getRandom().nextFloat() - 0.5f);
+            float dz = (getRandom().nextFloat() - 0.5f);
+            if(age % 5 == 0) lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, new Vec3d(getX() + dx, getEyeY() + dy, getZ() + dz));
+
+            if(getRandom().nextFloat() < 0.25f) {
+                playSound(getPanicSound(), 1, 1.25f + 0.25f * getRandom().nextFloat());
+            }
+
+            if(handSwingTicks == 0) {
+                handSwinging = true;
+                preferredHand = getRandom().nextFloat() > 0.5f ? Hand.MAIN_HAND : Hand.OFF_HAND;
+                if(world instanceof ServerWorld sw) {
+                    sw.getChunkManager().sendToNearbyPlayers(this, new EntityAnimationS2CPacket(this, getRandom().nextFloat() > 0.5f ? 0 : 3));
+                }
+            }
+        }
         super.tickMovement();
     }
 
@@ -360,6 +418,26 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
 
     public boolean canRenderCapeTexture() {
         return false;
+    }
+
+    @Override
+    public void dismountVehicle() {
+        super.dismountVehicle();
+        setPanicking(false);
+    }
+
+    @Override
+    public void writeCustomDataToNbt(NbtCompound nbt) {
+        super.writeCustomDataToNbt(nbt);
+        nbt.putBoolean("Panic", isPanicking());
+    }
+
+    @Override
+    public void readCustomDataFromNbt(NbtCompound nbt) {
+        super.readCustomDataFromNbt(nbt);
+        if(nbt.contains("Panic", NbtElement.BYTE_TYPE)) {
+            setPanicking(nbt.getBoolean("Panic"));
+        }
     }
 
     @Override

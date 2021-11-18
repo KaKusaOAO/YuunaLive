@@ -1,9 +1,12 @@
 package com.kakaouo.mods.yuunalive.entities;
 
 import com.kakaouo.mods.yuunalive.YuunaLive;
+import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.Locale;
@@ -38,5 +41,10 @@ public class YCTainEntity extends YuunaLivePlayerEntity {
     @Override
     public String getNickName() {
         return NICKNAME;
+    }
+
+    @Override
+    public boolean doesChinFacing() {
+        return true;
     }
 }

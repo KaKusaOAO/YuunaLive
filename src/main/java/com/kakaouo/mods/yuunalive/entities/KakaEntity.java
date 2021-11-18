@@ -15,6 +15,11 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
+import net.minecraft.text.TextColor;
+import net.minecraft.text.Texts;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -45,6 +50,11 @@ public class KakaEntity extends YuunaLivePlayerEntity {
     @Override
     public String getNickName() {
         return NICKNAME;
+    }
+
+    @Override
+    public TextColor getNickNameColor() {
+        return TextColor.fromRgb(0xff741f);
     }
 
     @Override
@@ -97,5 +107,10 @@ public class KakaEntity extends YuunaLivePlayerEntity {
     @Nullable
     protected SoundEvent getDeathSound() {
         return SoundEvents.ENTITY_FOX_DEATH;
+    }
+
+    @Override
+    public SoundEvent getPanicSound() {
+        return SoundEvents.ENTITY_FOX_HURT;
     }
 }

@@ -2,11 +2,13 @@ package com.kakaouo.mods.yuunalive.entities.client.model;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.kakaouo.mods.yuunalive.entities.YCTainEntity;
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.entity.model.CrossbowPosing;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -14,6 +16,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Arm;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
 import java.util.Random;
@@ -111,6 +114,10 @@ public class YuunaLivePlayerEntityModel extends BipedEntityModel<YuunaLivePlayer
     @Override
     public void setAngles(YuunaLivePlayerEntity livingEntity, float f, float g, float h, float i, float j) {
         super.setAngles(livingEntity, f, g, h, i, j);
+        if(livingEntity.doesChinFacing()) {
+            this.head.pitch -= MathHelper.HALF_PI;
+            this.hat.pitch -= MathHelper.HALF_PI;
+        }
         this.leftPants.copyTransform(this.leftLeg);
         this.rightPants.copyTransform(this.rightLeg);
         this.leftSleeve.copyTransform(this.leftArm);
@@ -130,6 +137,15 @@ public class YuunaLivePlayerEntityModel extends BipedEntityModel<YuunaLivePlayer
         } else {
             this.cloak.pivotZ = -1.1f;
             this.cloak.pivotY = -0.85f;
+        }
+
+        if(livingEntity.hasPassengers()) {
+            if(this.leftArmPose == ArmPose.EMPTY) {
+                this.leftArm.pitch = MathHelper.PI;
+            }
+            if(this.rightArmPose == ArmPose.EMPTY) {
+                this.rightArm.pitch = MathHelper.PI;
+            }
         }
     }
 
