@@ -58,11 +58,16 @@ public class KakaEntity extends YuunaLivePlayerEntity {
     }
 
     @Override
+    public boolean canUseCriticalHit() {
+        return true;
+    }
+
+    @Override
     protected void initCustomGoals() {
         super.initCustomGoals();
         this.goalSelector.add(6, new YuunaLivePlayerFindMobGoal(this, GinaChenEntity.class));
         this.targetSelector.add(2, new ActiveTargetGoal<>(this, MobEntity.class, 0,
-                false, false, entity -> !(entity instanceof GinaChenEntity || entity instanceof YuunaEntity)));
+                false, false, entity -> !(entity instanceof GinaChenEntity || entity instanceof YuunaEntity || entity instanceof Support1NoEntity)));
     }
 
     @Override
@@ -86,7 +91,7 @@ public class KakaEntity extends YuunaLivePlayerEntity {
             groundTick++;
             if(groundTick >= 20) {
                 groundTick = 0;
-                jump();
+                getJumpControl().setActive();
             }
         }
     }

@@ -3,6 +3,7 @@ package com.kakaouo.mods.yuunalive.entities;
 import com.kakaouo.mods.yuunalive.YuunaLive;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerBowAttackGoal;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerFindMobGoal;
+import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerMeleeAttackGoal;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerPickupItemGoal;
 import com.kakaouo.mods.yuunalive.util.KakaUtils;
 import com.mojang.authlib.GameProfile;
@@ -49,6 +50,7 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
 
     protected YuunaLivePlayerEntity(EntityType<? extends YuunaLivePlayerEntity> entityType, World world) {
         super(entityType, world);
+        this.setPersistent();
     }
 
     protected static <T extends YuunaLivePlayerEntity> EntityType<T> getType(Identifier id, EntityType.EntityFactory<T> builder) {
@@ -60,7 +62,7 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
     public static DefaultAttributeContainer.Builder createPlayerAttributes() {
         return PlayerEntity.createPlayerAttributes()
                 .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 36.0)
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.28)
+                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3)
                 .add(EntityAttributes.GENERIC_ATTACK_KNOCKBACK);
     }
 
@@ -73,7 +75,7 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
 
     protected void initCustomGoals() {
         this.goalSelector.add(1, new SwimGoal(this));
-        this.goalSelector.add(2, new MeleeAttackGoal(this, 1.0, false));
+        this.goalSelector.add(2, new YuunaLivePlayerMeleeAttackGoal(this, 1.0, false, canUseCriticalHit()));
 
         if(isAttractedByYuuna()) {
             this.goalSelector.add(3, new YuunaLivePlayerFindMobGoal(this, YuunaEntity.class).findRange(128));
@@ -85,6 +87,10 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(2, new RevengeGoal(this, this.getClass()).setGroupRevenge(ZombifiedPiglinEntity.class));
         this.targetSelector.add(1, new YuunaLivePlayerPickupItemGoal(this));
+    }
+
+    public boolean canUseCriticalHit() {
+        return false;
     }
 
     public boolean doesChinFacing() {

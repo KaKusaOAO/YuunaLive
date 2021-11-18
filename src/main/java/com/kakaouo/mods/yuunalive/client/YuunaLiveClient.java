@@ -24,5 +24,6 @@ public class YuunaLiveClient implements ClientModInitializer {
         EntityRendererRegistry.register(YCTainEntity.TYPE, slim);
         EntityRendererRegistry.register(YuruEntity.TYPE, slim);
         EntityRendererRegistry.register(YuunaEntity.TYPE, slim);
+        EntityRendererRegistry.register(Support1NoEntity.TYPE, slim);
     }
 }

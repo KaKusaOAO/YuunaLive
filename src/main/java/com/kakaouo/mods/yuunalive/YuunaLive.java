@@ -38,11 +38,12 @@ public class YuunaLive implements ModInitializer {
                 KakaEntity.TYPE,
                 YCTainEntity.TYPE,
                 YuruEntity.TYPE,
-                YuunaEntity.TYPE
+                YuunaEntity.TYPE,
+                Support1NoEntity.TYPE
         }) {
             Identifier id = Registry.ENTITY_TYPE.getId(type);
             Identifier itemId = id("spawn_egg_" + id.getPath());
-            Registry.register(Registry.ITEM, itemId, new SpawnEggItem(type, 0, 0xffffff, new Item.Settings().group(ItemGroup.MISC)));
+            Registry.register(Registry.ITEM, itemId, new SpawnEggItem(type, 0xffffff, 0xff88aa, new Item.Settings().group(ItemGroup.MISC)));
             FabricDefaultAttributeRegistry.register(type, YuunaLivePlayerEntity.createPlayerAttributes());
         }
     }

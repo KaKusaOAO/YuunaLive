@@ -1,0 +1,60 @@
+package com.kakaouo.mods.yuunalive.entities.ai.goal;
+
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.mob.PathAwareEntity;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
+
+import java.util.EnumSet;
+
+public class YuunaLivePlayerMeleeAttackGoal extends MeleeAttackGoal {
+    private boolean useCritical;
+
+    public YuunaLivePlayerMeleeAttackGoal(PathAwareEntity mob, double speed, boolean pauseWhenMobIdle, boolean useCritical) {
+        super(mob, speed, pauseWhenMobIdle);
+        this.useCritical = useCritical;
+        this.setControls(EnumSet.noneOf(Control.class));
+    }
+
+    @Override
+    protected void attack(LivingEntity target, double squaredDistance) {
+        if(!useCritical) {
+            super.attack(target, squaredDistance);
+            return;
+        }
+
+        double d = this.getSquaredMaxAttackDistance(target) + 2;
+        if (squaredDistance <= d && this.getCooldown() <= 0) {
+            if(mob.isOnGround()) {
+                mob.getJumpControl().setActive();
+            } else {
+                this.mob.getLookControl().lookAt(target);
+                if(mob.fallDistance > 0) {
+                    this.resetCooldown();
+                    if(this.mob.world instanceof ServerWorld sw) {
+                        sw.spawnParticles(ParticleTypes.CRIT, target.getX(), target.getHeight() / 2 + target.getY(), target.getZ(), 5, 0.5, 0.5, 0.5, 0.5);
+                        sw.spawnParticles(ParticleTypes.DAMAGE_INDICATOR, target.getX(), target.getHeight() / 2 + target.getY(), target.getZ(), 5, 0.5, 0.5, 0.5, 0.5);
+                        mob.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, 1, 1);
+                    }
+                    var attr = this.mob.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+                    if(attr != null) {
+                        var modifier = new EntityAttributeModifier("tmp", 1, EntityAttributeModifier.Operation.MULTIPLY_TOTAL);
+                        attr.addTemporaryModifier(modifier);
+                        this.mob.swingHand(Hand.MAIN_HAND);
+                        this.mob.tryAttack(target);
+                        attr.removeModifier(modifier);
+                    }
+                }
+            }
+        }
+    }
+}
