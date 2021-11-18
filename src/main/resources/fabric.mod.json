@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "yuunalive",
+  "version": "${version}",
+  "name": "YuunaLive",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/yuunalive/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.kakaouo.mods.yuunalive.client.YuunaLiveClient"
+    ],
+    "main": [
+      "com.kakaouo.mods.yuunalive.YuunaLive"
+    ]
+  },
+  "mixins": [
+    "YuunaLive.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.12.5",
+    "fabric": "*",
+    "minecraft": "1.17.1"
+  }
+}
