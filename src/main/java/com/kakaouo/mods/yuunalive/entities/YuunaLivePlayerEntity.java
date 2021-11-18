@@ -48,7 +48,7 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
 
     public static DefaultAttributeContainer.Builder createPlayerAttributes() {
         return PlayerEntity.createPlayerAttributes()
-                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 36.0)
+                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 128.0)
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.28)
                 .add(EntityAttributes.GENERIC_ATTACK_KNOCKBACK);
     }
