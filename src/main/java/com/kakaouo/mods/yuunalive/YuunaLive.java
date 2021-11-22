@@ -69,7 +69,7 @@ public class YuunaLive implements ModInitializer {
 
             // Natural spawning
             BiomeModifications.create(id).add(ModificationPhase.ADDITIONS, ctx -> true, ctx -> {
-                ctx.getSpawnSettings().addSpawn(type.getSpawnGroup(), new SpawnSettings.SpawnEntry(type, 500, 1, 2));
+                ctx.getSpawnSettings().addSpawn(type.getSpawnGroup(), new SpawnSettings.SpawnEntry(type, 100, 1, 2));
             });
         }
     }
