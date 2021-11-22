@@ -94,7 +94,9 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
         nbt.putBoolean("WantsToAdventure", wantsToAdventure);
-        nbt.put("TravelTarget", NbtHelper.fromBlockPos(travelTarget));
+        if(travelTarget != null) {
+            nbt.put("TravelTarget", NbtHelper.fromBlockPos(travelTarget));
+        }
     }
 
     @Override

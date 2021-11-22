@@ -25,19 +25,6 @@ public class GinaChenEntity extends YuunaLivePlayerEntity {
     }
 
     @Override
-    protected void initCustomGoals() {
-        super.initCustomGoals();
-        this.targetSelector.add(2, new ActiveTargetGoal<>(this, KiuryilEntity.class, 0,
-                false, false, this::canAttack
-        ));
-    }
-
-    @Override
-    public boolean canUseCriticalHit() {
-        return super.canUseCriticalHit() || getTarget() instanceof KiuryilEntity;
-    }
-
-    @Override
     public String getPlayerName() {
         return NAME;
     }

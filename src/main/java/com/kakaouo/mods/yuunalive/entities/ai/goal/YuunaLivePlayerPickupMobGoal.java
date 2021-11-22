@@ -10,6 +10,7 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.damage.EntityDamageSource;
 import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.passive.FoxEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.ItemStack;
@@ -30,7 +31,9 @@ public class YuunaLivePlayerPickupMobGoal extends Goal {
     public YuunaLivePlayerPickupMobGoal(YuunaLivePlayerEntity entity, Class<? extends Entity> entityClass, Predicate<? super Entity> predicate) {
         this.entity = entity;
         this.entityClass = entityClass;
-        this.predicate = predicate;
+        this.predicate = e -> {
+            return predicate.test(e) && !e.hasVehicle();
+        };
         this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
     }
 
@@ -43,6 +46,7 @@ public class YuunaLivePlayerPickupMobGoal extends Goal {
         return this;
     }
 
+    @Override
     public boolean canStart() {
         if (entity.hasPassengers()) {
             return false;
@@ -56,11 +60,16 @@ public class YuunaLivePlayerPickupMobGoal extends Goal {
         }
     }
 
+    @Override
     public void tick() {
         List<? extends Entity> list = entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), predicate);
-        List<Entity> passengers = entity.getPassengerList();
-        if (passengers.isEmpty() && !list.isEmpty()) {
+        if (!entity.hasPassengers() && !list.isEmpty()) {
             Entity target = list.get(0);
+            if(target == entity) {
+                stop();
+                return;
+            }
+
             entity.getNavigation().startMovingTo(target, 1.2000000476837158D);
             if(target.distanceTo(entity) < 3) {
                 if(target.hasVehicle()) {
@@ -79,6 +88,7 @@ public class YuunaLivePlayerPickupMobGoal extends Goal {
         }
     }
 
+    @Override
     public void start() {
         List<? extends Entity> list = entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), predicate);
         if (!list.isEmpty()) {

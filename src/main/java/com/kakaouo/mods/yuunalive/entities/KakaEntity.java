@@ -2,6 +2,7 @@ package com.kakaouo.mods.yuunalive.entities;
 
 import com.kakaouo.mods.yuunalive.YuunaLive;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerFindMobGoal;
+import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerPickupMobGoal;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.*;
@@ -56,6 +57,7 @@ public class KakaEntity extends YuunaLivePlayerEntity {
     protected void initCustomGoals() {
         super.initCustomGoals();
         this.goalSelector.add(6, new YuunaLivePlayerFindMobGoal(this, GinaChenEntity.class));
+        this.goalSelector.add(1, new YuunaLivePlayerPickupMobGoal(this, YuunaLivePlayerEntity.class));   // Chaos!
         this.targetSelector.add(2, new ActiveTargetGoal<>(this, MobEntity.class, 0,
                 false, false, this::canAttack
         ));

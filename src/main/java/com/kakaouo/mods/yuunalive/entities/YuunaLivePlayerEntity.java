@@ -90,8 +90,7 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(2, new RevengeGoal(this, this.getClass()).setGroupRevenge(ZombifiedPiglinEntity.class));
         this.targetSelector.add(1, new YuunaLivePlayerPickupItemGoal(this));
-        // this.targetSelector.add(2, new YuunaLivePlayerCancelAttackGoal(this));
-
+        this.targetSelector.add(2, new YuunaLivePlayerCancelAttackGoal(this));
         this.targetSelector.add(3, new YuunaLivePlayerTrackOwnerAttackerGoal(this));
         this.targetSelector.add(4, new YuunaLivePlayerAttackWithOwnerGoal(this));
         this.goalSelector.add(6, new YuunaLivePlayerFollowOwnerGoal(this, 1, 10, 2, false, false));
@@ -344,7 +343,10 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
             if(age % 5 == 0) lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, new Vec3d(getX() + dx, getEyeY() + dy, getZ() + dz));
 
             if(getRandom().nextFloat() < 0.25f) {
-                playSound(getPanicSound(), 1, 1.25f + 0.25f * getRandom().nextFloat());
+                SoundEvent sound = getPanicSound();
+                if(sound != null) {
+                    playSound(sound, 1, 1.25f + 0.25f * getRandom().nextFloat());
+                }
             }
 
             if(handSwingTicks == 0) {
@@ -531,6 +533,9 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
 
     @Override
     public void tick() {
+        if(this.equals(getVehicle())) {
+            this.dismountVehicle();
+        }
         super.tick();
         this.updateCapeAngles();
         this.tickHandSwing();

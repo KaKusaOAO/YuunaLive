@@ -29,9 +29,6 @@ public class YunariEntity extends YuunaLivePlayerEntity {
     protected void initCustomGoals() {
         super.initCustomGoals();
         this.goalSelector.add(1, new YuunaLivePlayerPickupMobGoal(this, KakaEntity.class));
-        this.targetSelector.add(2, new ActiveTargetGoal<>(this, KiuryilEntity.class, 0,
-                false, false, this::canAttack
-        ));
     }
 
     @Override
