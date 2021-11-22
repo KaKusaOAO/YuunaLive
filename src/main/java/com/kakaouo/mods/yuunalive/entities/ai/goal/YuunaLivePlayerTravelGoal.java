@@ -39,7 +39,10 @@ public class YuunaLivePlayerTravelGoal<T extends MobEntity & Travellable> extend
             BlockPos target = entity.getTravelTarget();
             entity.getNavigation().startMovingTo(target.getX(), target.getY(), target.getZ(), 1);
 
-            if(entity.getBlockPos().isWithinDistance(entity.getTravelTarget(), 16)) {
+            BlockPos.Mutable curr = entity.getBlockPos().mutableCopy();
+            BlockPos travelTarget = entity.getTravelTarget();
+            curr.setY(travelTarget.getY());
+            if(curr.isWithinDistance(travelTarget, 16)) {
                 if(entity.getRandom().nextInt(100) == 0) {
                     entity.setWantsToAdventure(false);
                 }
@@ -49,8 +52,10 @@ public class YuunaLivePlayerTravelGoal<T extends MobEntity & Travellable> extend
 
     @Override
     public boolean shouldContinue() {
-        BlockPos curr = entity.getBlockPos();
-        return canStart() && !curr.isWithinDistance(entity.getTravelTarget(), 16);
+        BlockPos.Mutable curr = entity.getBlockPos().mutableCopy();
+        BlockPos travelTarget = entity.getTravelTarget();
+        curr.setY(travelTarget.getY());
+        return canStart() && !curr.isWithinDistance(travelTarget, 16);
     }
 
     @Override
