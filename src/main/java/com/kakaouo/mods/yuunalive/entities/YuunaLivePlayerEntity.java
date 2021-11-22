@@ -1,10 +1,7 @@
 package com.kakaouo.mods.yuunalive.entities;
 
 import com.kakaouo.mods.yuunalive.YuunaLive;
-import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerBowAttackGoal;
-import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerFindMobGoal;
-import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerMeleeAttackGoal;
-import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerPickupItemGoal;
+import com.kakaouo.mods.yuunalive.entities.ai.goal.*;
 import com.kakaouo.mods.yuunalive.util.KakaUtils;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -17,9 +14,7 @@ import net.minecraft.entity.ai.pathing.EntityNavigation;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.*;
-import net.minecraft.entity.passive.IronGolemEntity;
-import net.minecraft.entity.passive.MerchantEntity;
-import net.minecraft.entity.passive.TurtleEntity;
+import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -28,6 +23,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.LocateCommand;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -43,10 +39,12 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 
 import java.net.ServerSocket;
+import java.util.UUID;
 
 public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements RangedAttackMob {
     private final YuunaLivePlayerBowAttackGoal bowAttackGoal = new YuunaLivePlayerBowAttackGoal(this, 1.0D, 20, 15.0F);
-    private final MeleeAttackGoal meleeAttackGoal = new MeleeAttackGoal(this, 1.0D, false);
+    private final MeleeAttackGoal meleeAttackGoal = new YuunaLivePlayerMeleeAttackGoal(this, 1.0D, false);
+    private YuunaEntity owner;
 
     protected YuunaLivePlayerEntity(EntityType<? extends YuunaLivePlayerEntity> entityType, World world) {
         super(entityType, world);
@@ -56,7 +54,10 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
     protected static <T extends YuunaLivePlayerEntity> EntityType<T> getType(Identifier id, EntityType.EntityFactory<T> builder) {
         return Registry.register(
                 Registry.ENTITY_TYPE, id,
-                FabricEntityTypeBuilder.create(SpawnGroup.MISC, builder).dimensions(EntityDimensions.fixed(0.6f, 1.95f)).build());
+                FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, builder)
+                        .spawnableFarFromPlayer()
+                        .dimensions(EntityDimensions.fixed(0.6f, 1.95f))
+                        .build());
     }
 
     public static DefaultAttributeContainer.Builder createPlayerAttributes() {
@@ -75,10 +76,9 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
 
     protected void initCustomGoals() {
         this.goalSelector.add(1, new SwimGoal(this));
-        this.goalSelector.add(2, new YuunaLivePlayerMeleeAttackGoal(this, 1.0, false, canUseCriticalHit()));
 
         if(isAttractedByYuuna()) {
-            this.goalSelector.add(3, new YuunaLivePlayerFindMobGoal(this, YuunaEntity.class).findRange(128));
+            this.goalSelector.add(8, new YuunaLivePlayerFindOwnerGoal(this));
         }
         if(doesAttackYuuna()) {
             this.targetSelector.add(2, new ActiveTargetGoal<>(this, YuunaEntity.class, true));
@@ -87,14 +87,48 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(2, new RevengeGoal(this, this.getClass()).setGroupRevenge(ZombifiedPiglinEntity.class));
         this.targetSelector.add(1, new YuunaLivePlayerPickupItemGoal(this));
+        this.targetSelector.add(2, new YuunaLivePlayerCancelAttackGoal(this));
+
+        this.targetSelector.add(3, new YuunaLivePlayerTrackOwnerAttackerGoal(this));
+        this.targetSelector.add(4, new YuunaLivePlayerAttackWithOwnerGoal(this));
+        this.goalSelector.add(6, new YuunaLivePlayerFollowOwnerGoal(this, 1, 10, 2, false, false));
+    }
+
+    public boolean canAttack(LivingEntity entity) {
+        return getAttackScore(entity) >= 0;
+    }
+
+    public int getAttackScore(LivingEntity entity) {
+        YuunaEntity owner = getOwner();
+        if(owner != null) {
+            if(owner.getAttacker() == entity) return 1;
+            if(owner.getAttacking() == entity) return 1;
+        }
+
+        if(entity instanceof YuunaLivePlayerEntity ylp) {
+            if(owner != null) {
+                YuunaEntity otherOwner = ylp.getOwner();
+                if(otherOwner != null) {
+                    if(owner.getUuid().equals(otherOwner.getUuid())) {
+                        return -1;
+                    }
+                }
+            }
+        }
+
+        return 0;
     }
 
     public boolean canUseCriticalHit() {
-        return false;
+        return hasOwner() && getTarget() == getOwner().getTarget();
     }
 
     public boolean doesChinFacing() {
         return false;
+    }
+
+    public float getOwnerFindRange() {
+        return 48.0f;
     }
 
     public abstract Identifier getTexture();
@@ -128,6 +162,46 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
 
     public TextColor getNickNameColor() {
         return TextColor.fromFormatting(Formatting.AQUA);
+    }
+
+    public boolean hasOwner() {
+        return owner != null;
+    }
+
+    public YuunaEntity getOwner() {
+        return owner;
+    }
+
+    public void setOwner(YuunaEntity owner) {
+        this.owner = owner;
+    }
+
+    public void setOwnerById(UUID uuid) {
+        if(!(this.world instanceof ServerWorld sw)) return;
+        if(sw.getEntity(uuid) instanceof YuunaEntity yuuna) {
+            setOwner(yuuna);
+        }
+    }
+
+    @Override
+    public void writeCustomDataToNbt(NbtCompound nbt) {
+        super.writeCustomDataToNbt(nbt);
+        nbt.putBoolean("Panic", isPanicking());
+        if(owner != null) {
+            nbt.putUuid("Owner", owner.uuid);
+        }
+    }
+
+    @Override
+    public void readCustomDataFromNbt(NbtCompound nbt) {
+        super.readCustomDataFromNbt(nbt);
+        if(nbt.contains("Panic", NbtElement.BYTE_TYPE)) {
+            setPanicking(nbt.getBoolean("Panic"));
+        }
+
+        if(nbt.containsUuid("Owner")) {
+            setOwnerById(nbt.getUuid("Owner"));
+        }
     }
 
     @Override
@@ -256,7 +330,7 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
             this.forwardSpeed = 0.0F;
         }
 
-        if(this.isPanicking()) {
+        if(this.isPanicking() && this.isAlive()) {
             float dx = (getRandom().nextFloat() - 0.5f);
             float dy = (getRandom().nextFloat() - 0.5f);
             float dz = (getRandom().nextFloat() - 0.5f);
@@ -315,7 +389,7 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         if(stackItem instanceof SwordItem s1) {
             if(equippedItem instanceof SwordItem s2) {
                 return s1.getAttackDamage() > s2.getAttackDamage();
-            } else if(equippedItem instanceof ArmorItem) {
+            } else {
                 return true;
             }
         }
@@ -379,6 +453,22 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         this.world.spawnEntity(persistentProjectileEntity);
     }
 
+    public boolean canAttackWithOwner(LivingEntity target, YuunaEntity owner) {
+        if (!(target instanceof CreeperEntity) && !(target instanceof GhastEntity)) {
+            if (target instanceof WolfEntity wolfEntity) {
+                return !wolfEntity.isTamed() || wolfEntity.getOwner() != owner;
+            } else if (target instanceof HorseBaseEntity && ((HorseBaseEntity)target).isTame()) {
+                return false;
+            } else if(target instanceof YuunaLivePlayerEntity minion) {
+                return minion.getOwner() != owner;
+            } else {
+                return !(target instanceof TameableEntity) || !((TameableEntity)target).isTamed();
+            }
+        } else {
+            return false;
+        }
+    }
+
     // Cape
     public double capeX;
     public double capeY;
@@ -433,24 +523,14 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
     }
 
     @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
-        nbt.putBoolean("Panic", isPanicking());
-    }
-
-    @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
-        if(nbt.contains("Panic", NbtElement.BYTE_TYPE)) {
-            setPanicking(nbt.getBoolean("Panic"));
-        }
-    }
-
-    @Override
     public void tick() {
         super.tick();
         this.updateCapeAngles();
         this.tickHandSwing();
+
+        if(owner != null && owner.isDead()) {
+            owner = null;
+        }
     }
 
     @Override

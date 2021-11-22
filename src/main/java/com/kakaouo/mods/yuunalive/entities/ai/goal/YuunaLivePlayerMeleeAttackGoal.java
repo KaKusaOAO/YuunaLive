@@ -1,5 +1,6 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
+import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
@@ -17,17 +18,17 @@ import net.minecraft.util.Hand;
 import java.util.EnumSet;
 
 public class YuunaLivePlayerMeleeAttackGoal extends MeleeAttackGoal {
-    private boolean useCritical;
+    private YuunaLivePlayerEntity entity;
 
-    public YuunaLivePlayerMeleeAttackGoal(PathAwareEntity mob, double speed, boolean pauseWhenMobIdle, boolean useCritical) {
+    public YuunaLivePlayerMeleeAttackGoal(YuunaLivePlayerEntity mob, double speed, boolean pauseWhenMobIdle) {
         super(mob, speed, pauseWhenMobIdle);
-        this.useCritical = useCritical;
+        entity = mob;
         this.setControls(EnumSet.noneOf(Control.class));
     }
 
     @Override
     protected void attack(LivingEntity target, double squaredDistance) {
-        if(!useCritical) {
+        if(!entity.canUseCriticalHit() || entity.isInsideWaterOrBubbleColumn()) {
             super.attack(target, squaredDistance);
             return;
         }

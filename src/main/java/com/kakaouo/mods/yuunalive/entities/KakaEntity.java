@@ -2,24 +2,14 @@ package com.kakaouo.mods.yuunalive.entities;
 
 import com.kakaouo.mods.yuunalive.YuunaLive;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerFindMobGoal;
-import net.minecraft.client.render.entity.PlayerEntityRenderer;
-import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.FoxEntity;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Style;
 import net.minecraft.text.TextColor;
-import net.minecraft.text.Texts;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -67,7 +57,18 @@ public class KakaEntity extends YuunaLivePlayerEntity {
         super.initCustomGoals();
         this.goalSelector.add(6, new YuunaLivePlayerFindMobGoal(this, GinaChenEntity.class));
         this.targetSelector.add(2, new ActiveTargetGoal<>(this, MobEntity.class, 0,
-                false, false, entity -> !(entity instanceof GinaChenEntity || entity instanceof YuunaEntity || entity instanceof Support1NoEntity)));
+                false, false, this::canAttack
+        ));
+    }
+
+    @Override
+    public int getAttackScore(LivingEntity entity) {
+        int result = super.getAttackScore(entity);
+        if(result != 0) return result;
+        if(entity instanceof GinaChenEntity) return -1;
+        if(entity instanceof YuunaEntity) return -1;
+        if(entity instanceof Support1NoEntity) return -1;
+        return 0;
     }
 
     @Override

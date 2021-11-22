@@ -17,12 +17,13 @@ public class YuunaLivePlayerFindMobGoal extends Goal {
     private Class<? extends Entity> entityClass;
     private Predicate<? super Entity> predicate;
     private double findRange = 32.0;
+    private int updateCountdownTicks;
 
     public YuunaLivePlayerFindMobGoal(YuunaLivePlayerEntity entity, Class<? extends Entity> entityClass, Predicate<? super Entity> predicate) {
         this.entity = entity;
         this.entityClass = entityClass;
         this.predicate = predicate;
-        this.setControls(EnumSet.of(Control.MOVE, Control.LOOK, Control.JUMP));
+        this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
     }
 
     public YuunaLivePlayerFindMobGoal findRange(double range) {
@@ -41,20 +42,28 @@ public class YuunaLivePlayerFindMobGoal extends Goal {
     }
 
     @Override
+    public boolean shouldContinue() {
+        return !entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(8.0), predicate).isEmpty();
+    }
+
+    @Override
     public void start() {
         super.start();
-        tick();
+        this.updateCountdownTicks = 0;
     }
 
     @Override
     public void tick() {
-        List<? extends Entity> list = entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), predicate);
-        if (!list.isEmpty()) {
-            Entity e = list.get(0);
-            entity.getLookControl().lookAt(e, 10.0F, (float)entity.getLookPitchSpeed());
-            entity.getNavigation().startMovingTo(e, 1.2000000476837158D);
-            if(e.distanceTo(entity) < entity.getRandom().nextInt(5) + 3) {
-                stop();
+        if (--this.updateCountdownTicks <= 0) {
+            this.updateCountdownTicks = 10;
+            List<? extends Entity> list = entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), predicate);
+            if (!list.isEmpty()) {
+                Entity e = list.get(0);
+                entity.getLookControl().lookAt(e, 10.0F, (float) entity.getLookPitchSpeed());
+                entity.getNavigation().startMovingTo(e, 1.2000000476837158D);
+                if (e.distanceTo(entity) < entity.getRandom().nextInt(5) + 3) {
+                    stop();
+                }
             }
         }
     }
@@ -63,10 +72,5 @@ public class YuunaLivePlayerFindMobGoal extends Goal {
     public void stop() {
         super.stop();
         entity.getNavigation().stop();
-    }
-
-    @Override
-    public boolean shouldContinue() {
-        return !entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(8.0), predicate).isEmpty();
     }
 }

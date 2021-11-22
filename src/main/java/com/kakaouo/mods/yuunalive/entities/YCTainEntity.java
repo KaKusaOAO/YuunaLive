@@ -30,7 +30,9 @@ public class YCTainEntity extends YuunaLivePlayerEntity {
     @Override
     protected void initCustomGoals() {
         super.initCustomGoals();
-        this.targetSelector.add(2, new ActiveTargetGoal<>(this, KiuryilEntity.class, true));
+        this.targetSelector.add(2, new ActiveTargetGoal<>(this, KiuryilEntity.class, 0,
+                false, false, this::canAttack
+        ));
     }
 
     @Override
@@ -41,6 +43,11 @@ public class YCTainEntity extends YuunaLivePlayerEntity {
     @Override
     public String getNickName() {
         return NICKNAME;
+    }
+
+    @Override
+    public float getOwnerFindRange() {
+        return 128;
     }
 
     @Override

@@ -1,24 +1,12 @@
 package com.kakaouo.mods.yuunalive.entities;
 
 import com.kakaouo.mods.yuunalive.YuunaLive;
-import com.mojang.authlib.GameProfile;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.mob.PathAwareEntity;
-import net.minecraft.entity.mob.ZombieEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 import java.util.Locale;
-import java.util.UUID;
 
 public class GinaChenEntity extends YuunaLivePlayerEntity {
     public static final String NAME = "Gina_chen";
@@ -39,7 +27,14 @@ public class GinaChenEntity extends YuunaLivePlayerEntity {
     @Override
     protected void initCustomGoals() {
         super.initCustomGoals();
-        this.targetSelector.add(2, new ActiveTargetGoal<>(this, KiuryilEntity.class, true));
+        this.targetSelector.add(2, new ActiveTargetGoal<>(this, KiuryilEntity.class, 0,
+                false, false, this::canAttack
+        ));
+    }
+
+    @Override
+    public boolean canUseCriticalHit() {
+        return super.canUseCriticalHit() || getTarget() instanceof KiuryilEntity;
     }
 
     @Override

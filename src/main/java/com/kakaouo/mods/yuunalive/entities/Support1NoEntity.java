@@ -4,6 +4,7 @@ import com.kakaouo.mods.yuunalive.YuunaLive;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerFindMobGoal;
 import com.kakaouo.mods.yuunalive.util.KakaUtils;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.damage.DamageSource;
@@ -56,9 +57,19 @@ public class Support1NoEntity extends YuunaLivePlayerEntity {
     public void tickMovement() {
         super.tickMovement();
         if(world instanceof ServerWorld sw) {
-            sw.setBlockState(getBlockPos(), Blocks.FIRE.getDefaultState());
             var d = KakaUtils.getDirection((age * 20) % 360, 0).multiply(0.5);
             sw.spawnParticles(ParticleTypes.HEART, getX() + d.x, getEyeY() + 1, getZ() + d.z, 1, 0, 0, 0, 10);
+        }
+    }
+
+    @Override
+    public void onAttacking(Entity target) {
+        super.onAttacking(target);
+        if(world instanceof ServerWorld sw) {
+            BlockPos pos = getBlockPos();
+            if(sw.getBlockState(pos).isAir()) {
+                sw.setBlockState(pos, Blocks.FIRE.getDefaultState());
+            }
         }
     }
 }

@@ -27,7 +27,9 @@ public class YuruEntity extends YuunaLivePlayerEntity {
     @Override
     protected void initCustomGoals() {
         super.initCustomGoals();
-        this.targetSelector.add(2, new ActiveTargetGoal<>(this, KiuryilEntity.class, true));
+        this.targetSelector.add(2, new ActiveTargetGoal<>(this, KiuryilEntity.class, 0,
+                false, false, this::canAttack
+        ));
     }
 
     @Override

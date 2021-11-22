@@ -68,6 +68,9 @@ public class YuunaLivePlayerPickupMobGoal extends Goal {
                     entity.tryAttack(e);
                 }
                 target.startRiding(entity, true);
+                if(entity.getTarget() == target) {
+                    entity.setTarget(null);
+                }
                 if(target instanceof YuunaLivePlayerEntity yp) {
                     yp.setPanicking(true);
                 }

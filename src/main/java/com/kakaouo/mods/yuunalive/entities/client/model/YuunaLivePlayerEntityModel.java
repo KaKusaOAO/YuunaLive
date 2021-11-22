@@ -142,9 +142,11 @@ public class YuunaLivePlayerEntityModel extends BipedEntityModel<YuunaLivePlayer
         if(livingEntity.hasPassengers()) {
             if(this.leftArmPose == ArmPose.EMPTY) {
                 this.leftArm.pitch = MathHelper.PI;
+                this.leftSleeve.pitch = MathHelper.PI;
             }
             if(this.rightArmPose == ArmPose.EMPTY) {
                 this.rightArm.pitch = MathHelper.PI;
+                this.rightSleeve.pitch = MathHelper.PI;
             }
         }
     }
