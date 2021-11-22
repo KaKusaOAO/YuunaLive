@@ -47,7 +47,7 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
     @Override
     protected void initCustomGoals() {
         super.initCustomGoals();
-        this.goalSelector.add(7, new YuunaLivePlayerTravelGoal(this));
+        this.goalSelector.add(14, new YuunaLivePlayerTravelGoal(this));
         this.targetSelector.add(2, new ActiveTargetGoal<>(this, HostileEntity.class, 0,
                 false, false, this::canAttack
         ));
@@ -86,11 +86,8 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
     @Override
     public void onKilledOther(ServerWorld world, LivingEntity other) {
         super.onKilledOther(world, other);
-
-        if(other instanceof YuunaEntity) {
-            var effect = new StatusEffectInstance(StatusEffects.REGENERATION, 200, 1, false, true);
-            addStatusEffect(effect);
-        }
+        var effect = new StatusEffectInstance(StatusEffects.REGENERATION, 200, 1, false, true);
+        addStatusEffect(effect);
     }
 
     @Override
@@ -153,7 +150,7 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
 
         if(isAlive()) {
             LivingEntity target = getTarget();
-            if(target instanceof YuunaEntity && target.isDead()) {
+            if(target != null && target.isDead()) {
                 setTarget(null);
                 var effect = new StatusEffectInstance(StatusEffects.REGENERATION, 200, 1, false, true);
                 addStatusEffect(effect);
@@ -161,7 +158,7 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
 
             if(!wantsToAdventure) {
                 if (getRandom().nextInt(100) == 0) {
-                    BlockPos found = sw.locateStructure(getRandomStructureType(), getBlockPos(), 16, false);
+                    BlockPos found = sw.locateStructure(getRandomStructureType(), getBlockPos(), 12, false);
                     if(travelTarget != null && !travelTarget.equals(found)) {
                         setTravelTarget(found);
                         wantsToAdventure = true;

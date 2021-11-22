@@ -23,7 +23,7 @@ public class YuunaLivePlayerMeleeAttackGoal extends MeleeAttackGoal {
     public YuunaLivePlayerMeleeAttackGoal(YuunaLivePlayerEntity mob, double speed, boolean pauseWhenMobIdle) {
         super(mob, speed, pauseWhenMobIdle);
         entity = mob;
-        this.setControls(EnumSet.noneOf(Control.class));
+        this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
     }
 
     @Override

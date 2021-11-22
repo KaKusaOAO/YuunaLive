@@ -1,5 +1,6 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
+import com.kakaouo.mods.yuunalive.YuunaLive;
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.TrackTargetGoal;

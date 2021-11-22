@@ -49,6 +49,7 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
     protected YuunaLivePlayerEntity(EntityType<? extends YuunaLivePlayerEntity> entityType, World world) {
         super(entityType, world);
         this.setPersistent();
+        this.updateAttackType();
     }
 
     protected static <T extends YuunaLivePlayerEntity> EntityType<T> getType(Identifier id, EntityType.EntityFactory<T> builder) {
@@ -81,13 +82,15 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
             this.goalSelector.add(8, new YuunaLivePlayerFindOwnerGoal(this));
         }
         if(doesAttackYuuna()) {
-            this.targetSelector.add(2, new ActiveTargetGoal<>(this, YuunaEntity.class, true));
+            this.targetSelector.add(2, new ActiveTargetGoal<>(this, YuunaEntity.class, 0,
+                    false, false, this::canAttack
+            ));
         }
 
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(2, new RevengeGoal(this, this.getClass()).setGroupRevenge(ZombifiedPiglinEntity.class));
         this.targetSelector.add(1, new YuunaLivePlayerPickupItemGoal(this));
-        this.targetSelector.add(2, new YuunaLivePlayerCancelAttackGoal(this));
+        // this.targetSelector.add(2, new YuunaLivePlayerCancelAttackGoal(this));
 
         this.targetSelector.add(3, new YuunaLivePlayerTrackOwnerAttackerGoal(this));
         this.targetSelector.add(4, new YuunaLivePlayerAttackWithOwnerGoal(this));
@@ -103,6 +106,10 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         if(owner != null) {
             if(owner.getAttacker() == entity) return 1;
             if(owner.getAttacking() == entity) return 1;
+        }
+
+        if(this instanceof YuunaEntity) {
+            return 1;
         }
 
         if(entity instanceof YuunaLivePlayerEntity ylp) {

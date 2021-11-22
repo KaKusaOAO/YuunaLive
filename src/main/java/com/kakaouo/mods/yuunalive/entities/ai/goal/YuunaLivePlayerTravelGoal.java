@@ -18,7 +18,7 @@ public class YuunaLivePlayerTravelGoal<T extends MobEntity & Travellable> extend
 
     public YuunaLivePlayerTravelGoal(T entity) {
         this.entity = entity;
-        this.setControls(EnumSet.of(Control.MOVE, Control.LOOK, Control.JUMP));
+        this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
     }
 
     public boolean canStart() {
@@ -35,7 +35,7 @@ public class YuunaLivePlayerTravelGoal<T extends MobEntity & Travellable> extend
         super.tick();
 
         if (--this.updateCountdownTicks <= 0) {
-            this.updateCountdownTicks = 200;
+            this.updateCountdownTicks = 400;
             BlockPos target = entity.getTravelTarget();
             entity.getNavigation().startMovingTo(target.getX(), target.getY(), target.getZ(), 1);
 
