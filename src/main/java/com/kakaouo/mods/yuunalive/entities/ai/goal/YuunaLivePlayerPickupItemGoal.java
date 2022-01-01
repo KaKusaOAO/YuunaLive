@@ -1,7 +1,6 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.ai.goal.Goal;
@@ -44,7 +43,7 @@ public class YuunaLivePlayerPickupItemGoal extends Goal {
                 .stream().filter(i -> entity.isItemBetterThanEquipped(i.getStack())).sorted(Comparator.comparingInt(a -> entity.getSwordLevel(a.getStack()))).toList();
         ItemStack itemStack = entity.getEquippedStack(EquipmentSlot.MAINHAND);
         if (itemStack.isEmpty() && !list.isEmpty()) {
-            entity.getNavigation().startMovingTo((Entity)list.get(0), 1.2000000476837158D);
+            entity.getNavigation().startMovingTo(list.get(0), 1.2000000476837158D);
         }
     }
 
@@ -52,7 +51,7 @@ public class YuunaLivePlayerPickupItemGoal extends Goal {
         List<ItemEntity> list = entity.world.getEntitiesByClass(ItemEntity.class, entity.getBoundingBox().expand(8.0D, 8.0D, 8.0D), PICKABLE_DROP_FILTER)
                 .stream().filter(i -> entity.isItemBetterThanEquipped(i.getStack())).sorted(Comparator.comparingInt(a -> entity.getSwordLevel(a.getStack()))).toList();
         if (!list.isEmpty()) {
-            entity.getNavigation().startMovingTo((Entity)list.get(0), 1.2000000476837158D);
+            entity.getNavigation().startMovingTo(list.get(0), 1.2000000476837158D);
         }
     }
 }

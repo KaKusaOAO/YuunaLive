@@ -4,15 +4,12 @@ import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
 import com.kakaouo.mods.yuunalive.entities.client.model.YuunaLivePlayerEntityModel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.PlayerModelPart;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
@@ -38,9 +35,9 @@ public class YuunaLivePlayerCapeFeatureRenderer
         }
         matrixStack.push();
         matrixStack.translate(0.0, 0.0, 0.125);
-        double d = MathHelper.lerp((double)h, player.prevCapeX, player.capeX) - MathHelper.lerp((double)h, player.prevX, player.getX());
-        double e = MathHelper.lerp((double)h, player.prevCapeY, player.capeY) - MathHelper.lerp((double)h, player.prevY, player.getY());
-        double m = MathHelper.lerp((double)h, player.prevCapeZ, player.capeZ) - MathHelper.lerp((double)h, player.prevZ, player.getZ());
+        double d = MathHelper.lerp(h, player.prevCapeX, player.capeX) - MathHelper.lerp(h, player.prevX, player.getX());
+        double e = MathHelper.lerp(h, player.prevCapeY, player.capeY) - MathHelper.lerp(h, player.prevY, player.getY());
+        double m = MathHelper.lerp(h, player.prevCapeZ, player.capeZ) - MathHelper.lerp(h, player.prevZ, player.getZ());
         float n = player.prevBodyYaw + (player.bodyYaw - player.prevBodyYaw);
         double o = MathHelper.sin(n * ((float)Math.PI / 180));
         double p = -MathHelper.cos(n * ((float)Math.PI / 180));

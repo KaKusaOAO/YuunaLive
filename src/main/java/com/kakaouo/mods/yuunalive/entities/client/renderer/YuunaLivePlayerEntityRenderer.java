@@ -1,18 +1,14 @@
 package com.kakaouo.mods.yuunalive.entities.client.renderer;
 
-import com.kakaouo.mods.yuunalive.YuunaLive;
-import com.kakaouo.mods.yuunalive.entities.client.model.YuunaLivePlayerEntityModel;
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
+import com.kakaouo.mods.yuunalive.entities.client.model.YuunaLivePlayerEntityModel;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.*;
-import net.minecraft.client.render.entity.feature.*;
+import net.minecraft.client.render.entity.BipedEntityRenderer;
+import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.EntityModelLayers;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
-import net.minecraft.client.render.entity.model.ZombieEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;

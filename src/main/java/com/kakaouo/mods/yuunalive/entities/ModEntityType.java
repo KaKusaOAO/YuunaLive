@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class ModEntityType {
-    private static Map<Class<? extends Entity>, EntityType<? extends Entity>> clzTypeMap = new HashMap<>();
+    private static final Map<Class<? extends Entity>, EntityType<? extends Entity>> clzTypeMap = new HashMap<>();
 
     static {
         registerAllByReflection();

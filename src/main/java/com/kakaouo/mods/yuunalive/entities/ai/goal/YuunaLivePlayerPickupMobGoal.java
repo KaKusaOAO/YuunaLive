@@ -2,30 +2,17 @@ package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.damage.EntityDamageSource;
-import net.minecraft.entity.mob.EndermanEntity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.FoxEntity;
-import net.minecraft.entity.projectile.ProjectileUtil;
-import net.minecraft.item.BowItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.sound.SoundEvents;
 
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Predicate;
 
 public class YuunaLivePlayerPickupMobGoal extends Goal {
-    private YuunaLivePlayerEntity entity;
-    private Class<? extends Entity> entityClass;
-    private Predicate<? super Entity> predicate;
+    private final YuunaLivePlayerEntity entity;
+    private final Class<? extends Entity> entityClass;
+    private final Predicate<? super Entity> predicate;
     private double findRange = 32.0;
 
     public YuunaLivePlayerPickupMobGoal(YuunaLivePlayerEntity entity, Class<? extends Entity> entityClass, Predicate<? super Entity> predicate) {
@@ -92,7 +79,7 @@ public class YuunaLivePlayerPickupMobGoal extends Goal {
     public void start() {
         List<? extends Entity> list = entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), predicate);
         if (!list.isEmpty()) {
-            entity.getNavigation().startMovingTo((Entity)list.get(0), 1.2000000476837158D);
+            entity.getNavigation().startMovingTo(list.get(0), 1.2000000476837158D);
         }
     }
 }

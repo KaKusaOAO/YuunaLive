@@ -5,7 +5,6 @@ import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.TrackTargetGoal;
-import net.minecraft.entity.passive.FoxEntity;
 
 import java.util.EnumSet;
 

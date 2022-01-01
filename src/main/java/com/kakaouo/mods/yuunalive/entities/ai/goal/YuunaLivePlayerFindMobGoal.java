@@ -2,21 +2,16 @@ package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.passive.WolfEntity;
-import net.minecraft.item.ItemStack;
 
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Predicate;
 
 public class YuunaLivePlayerFindMobGoal extends Goal {
-    private YuunaLivePlayerEntity entity;
-    private Class<? extends Entity> entityClass;
-    private Predicate<? super Entity> predicate;
+    private final YuunaLivePlayerEntity entity;
+    private final Class<? extends Entity> entityClass;
+    private final Predicate<? super Entity> predicate;
     private double findRange = 32.0;
     private int updateCountdownTicks;
 

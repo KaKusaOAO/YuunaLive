@@ -8,10 +8,8 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.Random;
@@ -49,7 +47,7 @@ public abstract class YuunaLivePlayerStuckObjectsFeatureRenderer<M extends Yuuna
             o = -1.0f * (o * 2.0f - 1.0f);
             p = -1.0f * (p * 2.0f - 1.0f);
             q = -1.0f * (q * 2.0f - 1.0f);
-            this.renderObject(matrixStack, vertexConsumerProvider, i, (Entity)livingEntity, o, p, q, h);
+            this.renderObject(matrixStack, vertexConsumerProvider, i, livingEntity, o, p, q, h);
             matrixStack.pop();
         }
     }

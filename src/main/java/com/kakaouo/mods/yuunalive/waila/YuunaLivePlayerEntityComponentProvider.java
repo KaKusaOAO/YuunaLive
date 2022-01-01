@@ -1,13 +1,8 @@
 package com.kakaouo.mods.yuunalive.waila;
 
-import com.kakaouo.mods.yuunalive.entities.YuunaEntity;
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
 import mcp.mobius.waila.api.*;
-import net.minecraft.client.render.block.entity.BedBlockEntityRenderer;
-import net.minecraft.entity.passive.WolfEntity;
-import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 import java.util.UUID;

@@ -1,29 +1,19 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import net.minecraft.block.*;
-import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
-import net.minecraft.entity.passive.FoxEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.loot.LootManager;
-import net.minecraft.loot.context.LootContext;
-import net.minecraft.loot.context.LootContextParameters;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.WorldView;
 
-import java.util.EnumSet;
 import java.util.function.Predicate;
 
 public class YuunaLivePlayerBreakBlockGoal extends MoveToTargetPosGoal {
-    private YuunaLivePlayerEntity entity;
-    private Predicate<BlockState> predicate;
+    private final YuunaLivePlayerEntity entity;
+    private final Predicate<BlockState> predicate;
     protected int timer;
 
     public YuunaLivePlayerBreakBlockGoal(YuunaLivePlayerEntity entity, double speed, int range, int maxYDifference, Predicate<BlockState> predicate) {

@@ -12,9 +12,9 @@ import net.minecraft.world.WorldView;
 import java.util.function.Predicate;
 
 public class YuunaLivePlayerPlaceBlockGoal extends MoveToTargetPosGoal {
-    private YuunaLivePlayerEntity entity;
-    private BlockState targetState;
-    private Predicate<BlockPos> placePredicate;
+    private final YuunaLivePlayerEntity entity;
+    private final BlockState targetState;
+    private final Predicate<BlockPos> placePredicate;
     protected int timer;
 
     public YuunaLivePlayerPlaceBlockGoal(YuunaLivePlayerEntity entity, double speed, int range, int maxYDifference, BlockState targetState, Predicate<BlockPos> placePredicate) {

@@ -1,12 +1,7 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
-import com.kakaouo.mods.yuunalive.YuunaLive;
 import com.kakaouo.mods.yuunalive.entities.Travellable;
-import com.kakaouo.mods.yuunalive.entities.YuunaEntity;
-import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.TrackTargetGoal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.util.math.BlockPos;
 

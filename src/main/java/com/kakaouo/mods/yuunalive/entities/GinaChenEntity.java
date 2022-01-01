@@ -1,15 +1,10 @@
 package com.kakaouo.mods.yuunalive.entities;
 
-import com.kakaouo.mods.yuunalive.YuunaLive;
 import com.kakaouo.mods.yuunalive.annotations.PlayerName;
 import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
 import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ai.goal.ActiveTargetGoal;
-import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
-
-import java.util.Locale;
 
 @PlayerSkin(value = "textures/entities/gina/1.png", slim = true)
 @PlayerName("Gina_chen")
