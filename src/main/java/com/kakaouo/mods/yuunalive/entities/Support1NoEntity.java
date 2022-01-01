@@ -1,11 +1,15 @@
 package com.kakaouo.mods.yuunalive.entities;
 
 import com.kakaouo.mods.yuunalive.YuunaLive;
+import com.kakaouo.mods.yuunalive.annotations.PlayerName;
+import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
+import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerFindMobGoal;
 import com.kakaouo.mods.yuunalive.util.KakaUtils;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
@@ -22,30 +26,31 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
+@PlayerSkin(value = "textures/entities/1no/1.png", slim = true)
+@PlayerName("Support1NO")
+@PlayerNickname("伊布")
 public class Support1NoEntity extends YuunaLivePlayerEntity {
-    public static final String NAME = "Support1NO";
-    public static final String NICKNAME = "伊布";
-
-    public static final Identifier ID = YuunaLive.id(NAME.toLowerCase(Locale.ROOT));
-    public static final EntityType<Support1NoEntity> TYPE = getType(ID, Support1NoEntity::new);
-
     protected Support1NoEntity(EntityType<Support1NoEntity> entityType, World world) {
         super(entityType, world);
     }
 
     @Override
-    public Identifier getTexture() {
-        return YuunaLive.id("textures/entities/1no/1.png");
+    protected void initCustomGoals() {
+        super.initCustomGoals();
+
+        this.targetSelector.add(2, new ActiveTargetGoal<>(this, YuunaLivePlayerEntity.class, 0,
+                false, false, this::canAttack
+        ));
     }
 
     @Override
-    public String getPlayerName() {
-        return NAME;
-    }
-
-    @Override
-    public String getNickName() {
-        return NICKNAME;
+    public int getAttackScore(LivingEntity entity) {
+        if(entity instanceof YuunaLivePlayerEntity
+                && !(entity instanceof Support1NoEntity)) {
+            if(entity.equals(this.getOwner())) return -1;
+            if(entity.getHealth() > getCalculatedDamageAmount()) return 1;
+        }
+        return super.getAttackScore(entity);
     }
 
     @Override

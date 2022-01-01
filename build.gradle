@@ -5,6 +5,7 @@ plugins {
 
 version = project.mod_version
 group = project.maven_group
+def wthitVersion = "4.4.0"
 
 repositories {
     // Add repositories to retrieve artifacts from in here.
@@ -12,6 +13,7 @@ repositories {
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
+    maven { url "https://maven.bai.lol" }
 }
 
 dependencies {
@@ -25,6 +27,9 @@ dependencies {
 
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.
+
+    // WTHIT: compile against the API
+    modCompileOnly "mcp.mobius.waila:wthit-api:fabric-${wthitVersion}"
 }
 
 processResources {

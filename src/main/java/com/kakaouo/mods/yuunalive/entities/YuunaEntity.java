@@ -1,6 +1,9 @@
 package com.kakaouo.mods.yuunalive.entities;
 
 import com.kakaouo.mods.yuunalive.YuunaLive;
+import com.kakaouo.mods.yuunalive.annotations.PlayerName;
+import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
+import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerTravelGoal;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -25,13 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+@PlayerSkin(value = "textures/entities/yuuna/4.png", slim = true)
+@PlayerName("SachiYuuna")
+@PlayerNickname("優奈")
 public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
-    public static final String NAME = "SachiYuuna";
-    public static final String NICKNAME = "優奈";
-
-    public static final Identifier ID = YuunaLive.id(NAME.toLowerCase(Locale.ROOT));
-    public static final EntityType<YuunaEntity> TYPE = getType(ID, YuunaEntity::new);
-
     private boolean wantsToAdventure = false;
     private BlockPos travelTarget = BlockPos.ORIGIN;
 
@@ -40,27 +40,12 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
     }
 
     @Override
-    public Identifier getTexture() {
-        return YuunaLive.id("textures/entities/yuuna/1.png");
-    }
-
-    @Override
     protected void initCustomGoals() {
         super.initCustomGoals();
-        this.goalSelector.add(14, new YuunaLivePlayerTravelGoal(this));
+        this.goalSelector.add(14, new YuunaLivePlayerTravelGoal<>(this));
         this.targetSelector.add(2, new ActiveTargetGoal<>(this, HostileEntity.class, 0,
                 false, false, this::canAttack
         ));
-    }
-
-    @Override
-    public String getPlayerName() {
-        return NAME;
-    }
-
-    @Override
-    public String getNickName() {
-        return NICKNAME;
     }
 
     @Override
@@ -94,8 +79,10 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
         nbt.putBoolean("WantsToAdventure", wantsToAdventure);
-        if(travelTarget != null) {
-            nbt.put("TravelTarget", NbtHelper.fromBlockPos(travelTarget));
+
+        BlockPos target = travelTarget;
+        if(target != null) {
+            nbt.put("TravelTarget", NbtHelper.fromBlockPos(target));
         }
     }
 

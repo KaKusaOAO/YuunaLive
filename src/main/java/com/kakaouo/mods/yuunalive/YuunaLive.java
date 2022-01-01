@@ -1,16 +1,18 @@
 package com.kakaouo.mods.yuunalive;
 
 import com.kakaouo.mods.yuunalive.entities.*;
+import com.kakaouo.mods.yuunalive.util.KakaUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
-import net.fabricmc.fabric.api.biome.v1.OverworldBiomes;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.MinecraftClientGame;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.debug.DebugRenderer;
 import net.minecraft.client.render.debug.PathfindingDebugRenderer;
@@ -41,6 +43,8 @@ import net.minecraft.world.dimension.DimensionType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.stream.Collectors;
+
 public class YuunaLive implements ModInitializer {
     public static final String NAMESPACE = "yuunalive";
     public static final Logger logger = LogManager.getLogger("YuunaLive");
@@ -50,27 +54,19 @@ public class YuunaLive implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        for(EntityType<? extends MobEntity> type : new EntityType[] {
-                GinaChenEntity.TYPE,
-                KiuryilEntity.TYPE,
-                YunariEntity.TYPE,
-                KakaEntity.TYPE,
-                YCTainEntity.TYPE,
-                YuruEntity.TYPE,
-                YuunaEntity.TYPE,
-                Support1NoEntity.TYPE
-        }) {
+        for(EntityType<? extends MobEntity> type : ModEntityType.getYuunaLivePlayerEntityTypes()) {
             Identifier id = Registry.ENTITY_TYPE.getId(type);
             Identifier itemId = id("spawn_egg_" + id.getPath());
             Registry.register(Registry.ITEM, itemId, new SpawnEggItem(type, 0xffffff, 0xff88aa, new Item.Settings().group(ItemGroup.MISC)));
 
-            // Default attributes
-            FabricDefaultAttributeRegistry.register(type, YuunaLivePlayerEntity.createPlayerAttributes());
-
             // Natural spawning
-            BiomeModifications.create(id).add(ModificationPhase.ADDITIONS, ctx -> true, ctx -> {
+            BiomeModifications.create(id).add(ModificationPhase.ADDITIONS, KakaUtils::isNotOceanBiome, ctx -> {
                 ctx.getSpawnSettings().addSpawn(type.getSpawnGroup(), new SpawnSettings.SpawnEntry(type, 100, 1, 2));
             });
         }
+
+        FabricLoader.getInstance().getAllMods().stream()
+                .map(mod -> mod.getMetadata().getCustomValue("waila:plugin").getAsString())
+                .collect(Collectors.toSet());
     }
 }

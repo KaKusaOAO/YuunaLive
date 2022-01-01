@@ -14,16 +14,6 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 public class YuunaLiveClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        EntityRendererFactory<YuunaLivePlayerEntity> normal = ctx -> new YuunaLivePlayerEntityRenderer(ctx, false);
-        EntityRendererFactory<YuunaLivePlayerEntity> slim = ctx -> new YuunaLivePlayerEntityRenderer(ctx, true);
 
-        EntityRendererRegistry.register(GinaChenEntity.TYPE, slim);
-        EntityRendererRegistry.register(KiuryilEntity.TYPE, slim);
-        EntityRendererRegistry.register(YunariEntity.TYPE, normal);
-        EntityRendererRegistry.register(KakaEntity.TYPE, normal);
-        EntityRendererRegistry.register(YCTainEntity.TYPE, slim);
-        EntityRendererRegistry.register(YuruEntity.TYPE, slim);
-        EntityRendererRegistry.register(YuunaEntity.TYPE, slim);
-        EntityRendererRegistry.register(Support1NoEntity.TYPE, slim);
     }
 }

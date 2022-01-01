@@ -5,6 +5,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.item.ItemStack;
 
 import java.util.Comparator;
@@ -37,7 +38,7 @@ public class YuunaLivePlayerFindMobGoal extends Goal {
 
     @Override
     public boolean canStart() {
-        return entity.getRandom().nextFloat() < 0.25f * 1f &&
+        return entity.getRandom().nextFloat() < 0.25f &&
                 !entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), e -> predicate.test(e) && e.distanceTo(entity) > 8).isEmpty();
     }
 
@@ -59,7 +60,7 @@ public class YuunaLivePlayerFindMobGoal extends Goal {
             List<? extends Entity> list = entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), predicate);
             if (!list.isEmpty()) {
                 Entity e = list.get(0);
-                entity.getLookControl().lookAt(e, 10.0F, (float) entity.getLookPitchSpeed());
+                entity.getLookControl().lookAt(e, 10.0F, (float) entity.getMaxLookPitchChange());
                 entity.getNavigation().startMovingTo(e, 1.2000000476837158D);
                 if (e.distanceTo(entity) < entity.getRandom().nextInt(5) + 3) {
                     stop();

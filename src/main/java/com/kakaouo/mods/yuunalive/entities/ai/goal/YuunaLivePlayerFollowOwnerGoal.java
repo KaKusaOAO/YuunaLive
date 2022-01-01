@@ -76,7 +76,7 @@ public class YuunaLivePlayerFollowOwnerGoal extends Goal {
     }
 
     public void tick() {
-        this.entity.getLookControl().lookAt(this.owner, 10.0F, (float)this.entity.getLookPitchSpeed());
+        this.entity.getLookControl().lookAt(this.owner, 10.0F, (float)this.entity.getMaxLookPitchChange());
         if (--this.updateCountdownTicks <= 0) {
             this.updateCountdownTicks = 10;
             if (!this.entity.isLeashed() && !this.entity.hasVehicle()) {

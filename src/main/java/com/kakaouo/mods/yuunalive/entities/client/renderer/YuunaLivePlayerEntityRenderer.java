@@ -24,7 +24,7 @@ import net.minecraft.util.UseAction;
 public class YuunaLivePlayerEntityRenderer extends BipedEntityRenderer<YuunaLivePlayerEntity, YuunaLivePlayerEntityModel> {
     public YuunaLivePlayerEntityRenderer(EntityRendererFactory.Context ctx, boolean slim) {
         super(ctx, new YuunaLivePlayerEntityModel(ctx.getPart(slim ? EntityModelLayers.PLAYER_SLIM : EntityModelLayers.PLAYER), slim), 0.5f);
-        this.addFeature(new ArmorFeatureRenderer(this, new BipedEntityModel(ctx.getPart(slim ? EntityModelLayers.PLAYER_SLIM_INNER_ARMOR : EntityModelLayers.PLAYER_INNER_ARMOR)), new BipedEntityModel(ctx.getPart(slim ? EntityModelLayers.PLAYER_SLIM_OUTER_ARMOR : EntityModelLayers.PLAYER_OUTER_ARMOR))));
+        this.addFeature(new ArmorFeatureRenderer<>(this, new BipedEntityModel<>(ctx.getPart(slim ? EntityModelLayers.PLAYER_SLIM_INNER_ARMOR : EntityModelLayers.PLAYER_INNER_ARMOR)), new BipedEntityModel(ctx.getPart(slim ? EntityModelLayers.PLAYER_SLIM_OUTER_ARMOR : EntityModelLayers.PLAYER_OUTER_ARMOR))));
         this.addFeature(new YuunaLivePlayerHeldItemFeatureRenderer<>(this));
         this.addFeature(new YuunaLivePlayerStuckArrowsFeatureRenderer<>(ctx, this));
         // this.addFeature(new Deadmau5FeatureRenderer(this));

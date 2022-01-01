@@ -1,18 +1,26 @@
 package com.kakaouo.mods.yuunalive.entities;
 
 import com.kakaouo.mods.yuunalive.YuunaLive;
+import com.kakaouo.mods.yuunalive.annotations.PlayerCape;
+import com.kakaouo.mods.yuunalive.annotations.PlayerName;
+import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
+import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.*;
 import com.kakaouo.mods.yuunalive.util.KakaUtils;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.*;
 import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
@@ -39,9 +47,13 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 
 import java.net.ServerSocket;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements RangedAttackMob {
+    private static final TrackedData<Optional<UUID>> OWNER_UUID = DataTracker.registerData(YuunaLivePlayerEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+
     private final YuunaLivePlayerBowAttackGoal bowAttackGoal = new YuunaLivePlayerBowAttackGoal(this, 1.0D, 20, 15.0F);
     private final MeleeAttackGoal meleeAttackGoal = new YuunaLivePlayerMeleeAttackGoal(this, 1.0D, false);
     private YuunaEntity owner;
@@ -52,13 +64,11 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         this.updateAttackType();
     }
 
-    protected static <T extends YuunaLivePlayerEntity> EntityType<T> getType(Identifier id, EntityType.EntityFactory<T> builder) {
-        return Registry.register(
-                Registry.ENTITY_TYPE, id,
-                FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, builder)
-                        .spawnableFarFromPlayer()
-                        .dimensions(EntityDimensions.fixed(0.6f, 1.95f))
-                        .build());
+    protected static <T extends YuunaLivePlayerEntity> EntityType<T> getType(EntityType.EntityFactory<T> builder) {
+        return FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, builder)
+                .spawnableFarFromPlayer()
+                .dimensions(EntityDimensions.fixed(0.6f, 1.95f))
+                .build();
     }
 
     public static DefaultAttributeContainer.Builder createPlayerAttributes() {
@@ -79,7 +89,7 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         this.goalSelector.add(1, new SwimGoal(this));
 
         if(isAttractedByYuuna()) {
-            this.goalSelector.add(8, new YuunaLivePlayerFindOwnerGoal(this));
+            this.goalSelector.add(1, new YuunaLivePlayerFindOwnerGoal(this));
         }
         if(doesAttackYuuna()) {
             this.targetSelector.add(2, new ActiveTargetGoal<>(this, YuunaEntity.class, 0,
@@ -90,10 +100,16 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(2, new RevengeGoal(this, this.getClass()).setGroupRevenge(ZombifiedPiglinEntity.class));
         this.targetSelector.add(1, new YuunaLivePlayerPickupItemGoal(this));
-        this.targetSelector.add(2, new YuunaLivePlayerCancelAttackGoal(this));
+        this.targetSelector.add(1, new YuunaLivePlayerCancelAttackGoal(this));
         this.targetSelector.add(3, new YuunaLivePlayerTrackOwnerAttackerGoal(this));
         this.targetSelector.add(4, new YuunaLivePlayerAttackWithOwnerGoal(this));
         this.goalSelector.add(6, new YuunaLivePlayerFollowOwnerGoal(this, 1, 10, 2, false, false));
+    }
+
+    @Override
+    protected void initDataTracker() {
+        super.initDataTracker();
+        this.dataTracker.startTracking(OWNER_UUID, Optional.empty());
     }
 
     public boolean canAttack(LivingEntity entity) {
@@ -114,15 +130,19 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         if(entity instanceof YuunaLivePlayerEntity ylp) {
             if(owner != null) {
                 YuunaEntity otherOwner = ylp.getOwner();
-                if(otherOwner != null) {
-                    if(owner.getUuid().equals(otherOwner.getUuid())) {
-                        return -1;
-                    }
+                if(owner.equals(otherOwner)) {
+                    return -1;
                 }
             }
         }
 
         return 0;
+    }
+
+    public float getCalculatedDamageAmount() {
+        float a = (float) getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+        float b = EnchantmentHelper.getAttackDamage(getMainHandStack(), getGroup());
+        return (a + b) * (canUseCriticalHit() ? 2 : 1);
     }
 
     public boolean canUseCriticalHit() {
@@ -137,11 +157,53 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         return 48.0f;
     }
 
-    public abstract Identifier getTexture();
+    public Identifier getTexture() {
+        return getTexture(this.getClass());
+    }
 
-    public abstract String getPlayerName();
+    public boolean isSlim() {
+        return isSlim(this.getClass());
+    }
 
-    public abstract String getNickName();
+    public String getPlayerName() {
+        return getPlayerName(this.getClass());
+    }
+
+    public String getNickName() {
+        return getNickName(this.getClass());
+    }
+
+    public Identifier getIdentifier() {
+        return getIdentifier(this.getClass());
+    }
+
+    public static <T extends YuunaLivePlayerEntity> Identifier getTexture(Class<T> clz) {
+        PlayerSkin name = clz.getAnnotation(PlayerSkin.class);
+        if(name != null) return YuunaLive.id(name.value());
+        return null;
+    }
+
+    public static <T extends YuunaLivePlayerEntity> boolean isSlim(Class<T> clz) {
+        PlayerSkin name = clz.getAnnotation(PlayerSkin.class);
+        if(name != null) return name.slim();
+        return false;
+    }
+
+    public static <T extends YuunaLivePlayerEntity> String getPlayerName(Class<T> clz) {
+        PlayerName name = clz.getAnnotation(PlayerName.class);
+        if(name != null) return name.value();
+        return "?";
+    }
+
+    public static <T extends YuunaLivePlayerEntity> String getNickName(Class<T> clz) {
+        PlayerNickname name = clz.getAnnotation(PlayerNickname.class);
+        if(name != null) return name.value();
+        return null;
+    }
+
+    public static <T extends YuunaLivePlayerEntity> Identifier getIdentifier(Class<T> clz) {
+        return YuunaLive.id(getPlayerName(clz).toLowerCase(Locale.ROOT));
+    }
 
     public boolean isAttractedByYuuna() {
         return true;
@@ -154,15 +216,21 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
     @Override
     public Text getName() {
         MutableText playerName = new LiteralText(getPlayerName());
-        MutableText nickName = new LiteralText(getNickName());
-        nickName.setStyle(nickName.getStyle().withColor(getNickNameColor()));
+        String nickname = getNickName();
+        MutableText nickTag = new LiteralText("");
 
-        if(this instanceof YuunaEntity) {
-            playerName.formatted(Formatting.LIGHT_PURPLE);
-            nickName.formatted(Formatting.BOLD);
+        if(nickname != null) {
+            MutableText nickName = new LiteralText(getNickName());
+            nickName.setStyle(nickName.getStyle().withColor(getNickNameColor()));
+
+            if(this instanceof YuunaEntity) {
+                playerName.formatted(Formatting.LIGHT_PURPLE);
+                nickName.formatted(Formatting.BOLD);
+            }
+
+            nickTag = nickTag.append(new TranslatableText("[%s] ", nickName).formatted(Formatting.GREEN));
         }
 
-        MutableText nickTag = new LiteralText("").append(new TranslatableText("[%s] ", nickName).formatted(Formatting.GREEN));
         return nickTag.append(playerName);
     }
 
@@ -178,14 +246,26 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         return owner;
     }
 
+    public UUID getOwnerUuid() {
+        return this.dataTracker.get(OWNER_UUID).orElse(null);
+    }
+
     public void setOwner(YuunaEntity owner) {
-        this.owner = owner;
+        if(owner != null) {
+            this.setOwnerById(owner.getUuid());
+        } else {
+            this.setOwnerById(null);
+        }
     }
 
     public void setOwnerById(UUID uuid) {
+        this.dataTracker.set(OWNER_UUID, Optional.ofNullable(uuid));
+
         if(!(this.world instanceof ServerWorld sw)) return;
-        if(sw.getEntity(uuid) instanceof YuunaEntity yuuna) {
-            setOwner(yuuna);
+        if(uuid == null) {
+            this.owner = null;
+        } else if(sw.getEntity(uuid) instanceof YuunaEntity yuuna) {
+            this.owner = yuuna;
         }
     }
 
@@ -522,7 +602,12 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
     }
 
     public boolean canRenderCapeTexture() {
-        return false;
+        return canRenderCapeTexture(this.getClass());
+    }
+
+    public static <T extends YuunaLivePlayerEntity> boolean canRenderCapeTexture(Class<T> clz) {
+        PlayerCape cape = clz.getAnnotation(PlayerCape.class);
+        return cape != null;
     }
 
     @Override
@@ -541,7 +626,7 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
         this.tickHandSwing();
 
         if(owner != null && owner.isDead()) {
-            owner = null;
+            setOwner(null);
         }
     }
 
@@ -553,6 +638,12 @@ public abstract class YuunaLivePlayerEntity extends PathAwareEntity implements R
     }
 
     public Identifier getCapeTexture() {
-        return null;
+        return getCapeTexture(this.getClass());
+    }
+
+    public static <T extends YuunaLivePlayerEntity> Identifier getCapeTexture(Class<T> clz) {
+        PlayerCape cape = clz.getAnnotation(PlayerCape.class);
+        if(cape == null) return null;
+        return YuunaLive.id(cape.value());
     }
 }
