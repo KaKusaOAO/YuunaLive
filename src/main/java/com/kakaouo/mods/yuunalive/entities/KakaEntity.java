@@ -27,7 +27,7 @@ public class KakaEntity extends YuunaLivePlayerEntity {
 
     @Override
     public TextColor getNickNameColor() {
-        return TextColor.fromRgb(0xff741f);
+        return TextColor.fromRgb(0xffa0b2);
     }
 
     @Override

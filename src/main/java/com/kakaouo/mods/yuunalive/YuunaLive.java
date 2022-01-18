@@ -29,6 +29,9 @@ public class YuunaLive implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        logger.info("Initializing YuunaLive!");
+        ModEntityType.load();
+
         for(EntityType<? extends MobEntity> type : ModEntityType.getYuunaLivePlayerEntityTypes()) {
             Identifier id = Registry.ENTITY_TYPE.getId(type);
             Identifier itemId = id("spawn_egg_" + id.getPath());

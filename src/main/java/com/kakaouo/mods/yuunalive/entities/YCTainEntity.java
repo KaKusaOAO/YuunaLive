@@ -30,6 +30,6 @@ public class YCTainEntity extends YuunaLivePlayerEntity {
 
     @Override
     public boolean doesChinFacing() {
-        return true;
+        return this.getUuid().hashCode() % 2 == 0;
     }
 }

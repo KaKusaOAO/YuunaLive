@@ -47,12 +47,14 @@ public final class ModEntityType {
 
     @SuppressWarnings("unchecked")
     private static void registerAllByReflection() {
+        YuunaLive.logger.info("Looking for entity classes...");
         for(Class<?> clz : KakaUtils.getClassesOfPackage(ModEntityType.class.getPackage())) {
             if(YuunaLivePlayerEntity.class.isAssignableFrom(clz) && !clz.equals(YuunaLivePlayerEntity.class)) {
                 Class<? extends YuunaLivePlayerEntity> c = (Class<? extends YuunaLivePlayerEntity>) clz;
                 registerYuunaLivePlayer(c);
             }
         }
+        YuunaLive.logger.info("Registered " + clzTypeMap.size() + " entities.");
     }
 
     @SuppressWarnings("unchecked")
@@ -68,6 +70,8 @@ public final class ModEntityType {
                 return null;
             }
         };
+
+        YuunaLive.logger.info("Registering entity: " + clz.getName());
 
         EntityType<T> type = register(clz, id, YuunaLivePlayerEntity.getType(builder));
         FabricDefaultAttributeRegistry.register(type, YuunaLivePlayerEntity.createPlayerAttributes());

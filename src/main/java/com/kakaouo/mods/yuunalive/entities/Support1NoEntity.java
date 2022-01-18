@@ -17,7 +17,6 @@ import net.minecraft.world.World;
 
 @PlayerSkin(value = "textures/entities/1no/1.png", slim = true)
 @PlayerName("Support1NO")
-@PlayerNickname("伊布")
 @SpawnEggColor(primary = 0xffffff, secondary = 0x320000)
 public class Support1NoEntity extends YuunaLivePlayerEntity {
     protected Support1NoEntity(EntityType<Support1NoEntity> entityType, World world) {
@@ -66,5 +65,10 @@ public class Support1NoEntity extends YuunaLivePlayerEntity {
                 sw.setBlockState(pos, Blocks.FIRE.getDefaultState());
             }
         }
+    }
+
+    @Override
+    public String getNickName() {
+        return this.getUuid().hashCode() % 2 == 0 ? "天然" : "伊布";
     }
 }
