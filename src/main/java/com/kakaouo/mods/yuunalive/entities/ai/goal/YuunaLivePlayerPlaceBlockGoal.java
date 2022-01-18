@@ -35,7 +35,7 @@ public class YuunaLivePlayerPlaceBlockGoal extends MoveToTargetPosGoal {
     }
 
     @Override
-    public double getDesiredDistanceToTarget() {
+    public double getDesiredSquaredDistanceToTarget() {
         return 2;
     }
 
