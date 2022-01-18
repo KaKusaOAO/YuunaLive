@@ -1,9 +1,6 @@
 package com.kakaouo.mods.yuunalive.entities;
 
-import com.kakaouo.mods.yuunalive.annotations.PlayerCape;
-import com.kakaouo.mods.yuunalive.annotations.PlayerName;
-import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
-import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
+import com.kakaouo.mods.yuunalive.annotations.*;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerFindMobGoal;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerPickupMobGoal;
 import net.minecraft.entity.EntityType;
@@ -17,10 +14,12 @@ import net.minecraft.text.TextColor;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-@PlayerSkin("textures/entities/kaka/1.png")
-@PlayerCape("textures/entities/kaka/cape.png")
+@PlayerSkin(value = "textures/entities/kaka/newskin2.png", slim = true)
+// @PlayerSkin("textures/entities/kaka/1.png")
+// @PlayerCape("textures/entities/kaka/cape.png")
 @PlayerName("ItsKaka_OuO")
 @PlayerNickname("咔咔")
+@SpawnEggColor(primary = 0xffffff, secondary = 0xc5ffa0)
 public class KakaEntity extends YuunaLivePlayerEntity {
     protected KakaEntity(EntityType<KakaEntity> entityType, World world) {
         super(entityType, world);

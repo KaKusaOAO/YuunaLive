@@ -3,6 +3,7 @@ package com.kakaouo.mods.yuunalive.entities;
 import com.kakaouo.mods.yuunalive.annotations.PlayerName;
 import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
 import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
+import com.kakaouo.mods.yuunalive.annotations.SpawnEggColor;
 import com.kakaouo.mods.yuunalive.util.KakaUtils;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -17,6 +18,7 @@ import net.minecraft.world.World;
 @PlayerSkin(value = "textures/entities/1no/1.png", slim = true)
 @PlayerName("Support1NO")
 @PlayerNickname("伊布")
+@SpawnEggColor(primary = 0xffffff, secondary = 0x320000)
 public class Support1NoEntity extends YuunaLivePlayerEntity {
     protected Support1NoEntity(EntityType<Support1NoEntity> entityType, World world) {
         super(entityType, world);

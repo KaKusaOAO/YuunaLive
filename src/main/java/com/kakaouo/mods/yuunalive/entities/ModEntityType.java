@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 public final class ModEntityType {
     private static final Map<Class<? extends Entity>, EntityType<? extends Entity>> clzTypeMap = new HashMap<>();
+    private static final Map<EntityType<? extends Entity>, Class<? extends Entity>> typeClzMap = new HashMap<>();
 
     static {
         registerAllByReflection();
@@ -30,6 +31,10 @@ public final class ModEntityType {
 
     public static EntityType<? extends Entity> getTypeByClass(Class<?> clz) {
         return clzTypeMap.get(clz);
+    }
+
+    public static Class<? extends Entity> getClassByType(EntityType<?> type) {
+        return typeClzMap.get(type);
     }
 
     @SuppressWarnings("unchecked")
@@ -81,6 +86,7 @@ public final class ModEntityType {
     private static <T extends Entity> EntityType<T> register(Class<T> clz, Identifier id, EntityType<T> type) {
         EntityType<T> result = Registry.register(Registry.ENTITY_TYPE, id, type);
         clzTypeMap.put(clz, type);
+        typeClzMap.put(type, clz);
         return result;
     }
 

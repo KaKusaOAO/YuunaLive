@@ -1,5 +1,6 @@
 package com.kakaouo.mods.yuunalive;
 
+import com.kakaouo.mods.yuunalive.annotations.SpawnEggColor;
 import com.kakaouo.mods.yuunalive.entities.ModEntityType;
 import com.kakaouo.mods.yuunalive.util.KakaUtils;
 import net.fabricmc.api.ModInitializer;
@@ -31,16 +32,22 @@ public class YuunaLive implements ModInitializer {
         for(EntityType<? extends MobEntity> type : ModEntityType.getYuunaLivePlayerEntityTypes()) {
             Identifier id = Registry.ENTITY_TYPE.getId(type);
             Identifier itemId = id("spawn_egg_" + id.getPath());
-            Registry.register(Registry.ITEM, itemId, new SpawnEggItem(type, 0xffffff, 0xff88aa, new Item.Settings().group(ItemGroup.MISC)));
+
+            // Default colors for our entities
+            int primary = 0xffffff;
+            int secondary = 0xff88aa;
+
+            SpawnEggColor color = ModEntityType.getClassByType(type).getDeclaredAnnotation(SpawnEggColor.class);
+            if(color != null) {
+                primary = color.primary();
+                secondary = color.secondary();
+            }
+            Registry.register(Registry.ITEM, itemId, new SpawnEggItem(type, primary, secondary, new Item.Settings().group(ItemGroup.MISC)));
 
             // Natural spawning
             BiomeModifications.create(id).add(ModificationPhase.ADDITIONS, KakaUtils::isNotOceanBiome, ctx -> {
                 ctx.getSpawnSettings().addSpawn(type.getSpawnGroup(), new SpawnSettings.SpawnEntry(type, 100, 1, 2));
             });
         }
-
-        FabricLoader.getInstance().getAllMods().stream()
-                .map(mod -> mod.getMetadata().getCustomValue("waila:plugin").getAsString())
-                .collect(Collectors.toSet());
     }
 }
