@@ -3,6 +3,7 @@ package com.kakaouo.mods.yuunalive.entities;
 import com.kakaouo.mods.yuunalive.annotations.PlayerName;
 import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
 import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
+import com.kakaouo.mods.yuunalive.annotations.SpawnEggColor;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerBreakBlockGoal;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerPlaceBlockGoal;
 import net.minecraft.core.BlockPos;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 @PlayerSkin(value = "textures/entities/yuru/2.png", slim = true)
 @PlayerName("Yuru7560_TW")
 @PlayerNickname("優儒")
+@SpawnEggColor(primary = 0xffd7f0, secondary = 0xffa6be)
 public class YuruEntity extends YuunaLivePlayerEntity {
     protected YuruEntity(EntityType<YuruEntity> entityType, Level world) {
         super(entityType, world);

@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 public final class ModEntityType {
     private static final Map<Class<? extends Entity>, EntityType<? extends Entity>> clzTypeMap = new HashMap<>();
+    private static final Map<EntityType<? extends Entity>, Class<? extends Entity>> typeClzMap = new HashMap<>();
 
     static {
         registerAllByReflection();
@@ -29,6 +30,10 @@ public final class ModEntityType {
 
     public static EntityType<? extends Entity> getTypeByClass(Class<?> clz) {
         return clzTypeMap.get(clz);
+    }
+
+    public static Class<? extends Entity> getClassByType(EntityType<?> type) {
+        return typeClzMap.get(type);
     }
 
     @SuppressWarnings("unchecked")
@@ -41,6 +46,7 @@ public final class ModEntityType {
 
     @SuppressWarnings("unchecked")
     private static void registerAllByReflection() {
+        YuunaLive.logger.info("Looking for entity classes...");
         for(Class<?> clz : KakaUtils.getClassesOfPackage(ModEntityType.class.getPackage())) {
             if(YuunaLivePlayerEntity.class.isAssignableFrom(clz) && !clz.equals(YuunaLivePlayerEntity.class)) {
                 Class<? extends YuunaLivePlayerEntity> c = (Class<? extends YuunaLivePlayerEntity>) clz;
@@ -53,6 +59,7 @@ public final class ModEntityType {
                 }
             }
         }
+        YuunaLive.logger.info("Registered " + clzTypeMap.size() + " entities.");
     }
 
     @SuppressWarnings("unchecked")
@@ -68,6 +75,8 @@ public final class ModEntityType {
                 return null;
             }
         };
+
+        YuunaLive.logger.info("Registering entity: " + clz.getName());
 
         EntityType<T> type = register(clz, id, YuunaLivePlayerEntity.getType(builder));
         FabricDefaultAttributeRegistry.register(type, YuunaLivePlayerEntity.createPlayerAttributes());
@@ -86,6 +95,7 @@ public final class ModEntityType {
     private static <T extends Entity> EntityType<T> register(Class<T> clz, ResourceLocation id, EntityType<T> type) {
         EntityType<T> result = Registry.register(Registry.ENTITY_TYPE, id, type);
         clzTypeMap.put(clz, type);
+        typeClzMap.put(type, clz);
         return result;
     }
 

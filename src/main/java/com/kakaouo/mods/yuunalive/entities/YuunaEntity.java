@@ -4,6 +4,7 @@ import com.kakaouo.mods.yuunalive.YuunaLive;
 import com.kakaouo.mods.yuunalive.annotations.PlayerName;
 import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
 import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
+import com.kakaouo.mods.yuunalive.annotations.SpawnEggColor;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerTravelGoal;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ import net.minecraft.world.level.levelgen.feature.StructureFeature;
 @PlayerSkin(value = "textures/entities/yuuna/4.png", slim = true)
 @PlayerName("SachiYuuna")
 @PlayerNickname("優奈")
+@SpawnEggColor(primary = 0xffffff, secondary = 0xff76a8)
 public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
     private boolean wantsToAdventure = false;
     private BlockPos travelTarget = BlockPos.ZERO;

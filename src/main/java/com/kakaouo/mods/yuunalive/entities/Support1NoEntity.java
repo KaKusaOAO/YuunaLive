@@ -3,6 +3,7 @@ package com.kakaouo.mods.yuunalive.entities;
 import com.kakaouo.mods.yuunalive.annotations.PlayerName;
 import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
 import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
+import com.kakaouo.mods.yuunalive.annotations.SpawnEggColor;
 import com.kakaouo.mods.yuunalive.util.KakaUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -17,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 
 @PlayerSkin(value = "textures/entities/1no/1.png", slim = true)
 @PlayerName("Support1NO")
-@PlayerNickname("伊布")
+@SpawnEggColor(primary = 0xffffff, secondary = 0x320000)
 public class Support1NoEntity extends YuunaLivePlayerEntity {
     static boolean shouldBeExcluded() {
         return true;
@@ -69,5 +70,10 @@ public class Support1NoEntity extends YuunaLivePlayerEntity {
                 sw.setBlockAndUpdate(pos, Blocks.FIRE.defaultBlockState());
             }
         }
+    }
+
+    @Override
+    public String getNickName() {
+        return this.getUuid().hashCode() % 2 == 0 ? "天然" : "伊布";
     }
 }

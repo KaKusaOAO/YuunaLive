@@ -3,6 +3,7 @@ package com.kakaouo.mods.yuunalive.entities;
 import com.kakaouo.mods.yuunalive.annotations.PlayerName;
 import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
 import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
+import com.kakaouo.mods.yuunalive.annotations.SpawnEggColor;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerPickupMobGoal;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.Level;
 @PlayerSkin(value = "textures/entities/yc/1.png", slim = true)
 @PlayerName("YingChao")
 @PlayerNickname("天天")
+@SpawnEggColor(primary = 0xffffff, secondary = 0xb8fcff)
 public class YCTainEntity extends YuunaLivePlayerEntity {
     static boolean shouldBeExcluded() {
         return true;
@@ -32,6 +34,6 @@ public class YCTainEntity extends YuunaLivePlayerEntity {
 
     @Override
     public boolean doesChinFacing() {
-        return true;
+        return this.getUuid().hashCode() % 2 == 0;
     }
 }
