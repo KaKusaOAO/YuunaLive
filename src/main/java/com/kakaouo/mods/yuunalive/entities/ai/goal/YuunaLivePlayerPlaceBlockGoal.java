@@ -1,17 +1,16 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.WorldView;
-
 import java.util.function.Predicate;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockState;
 
-public class YuunaLivePlayerPlaceBlockGoal extends MoveToTargetPosGoal {
+public class YuunaLivePlayerPlaceBlockGoal extends MoveToBlockGoal {
     private final YuunaLivePlayerEntity entity;
     private final BlockState targetState;
     private final Predicate<BlockPos> placePredicate;
@@ -25,51 +24,51 @@ public class YuunaLivePlayerPlaceBlockGoal extends MoveToTargetPosGoal {
     }
 
     @Override
-    public boolean canStart() {
-        if(!(!entity.isSleeping() && super.canStart())) return false;
-        ItemStack item = entity.getMainHandStack();
+    public boolean canUse() {
+        if(!(!entity.isSleeping() && super.canUse())) return false;
+        ItemStack item = entity.getMainHandItem();
         if(item.getItem() instanceof BlockItem bl) {
-            return targetState.equals(bl.getBlock().getDefaultState());
+            return targetState.equals(bl.getBlock().defaultBlockState());
         }
         return false;
     }
 
     @Override
-    public double getDesiredDistanceToTarget() {
+    public double acceptedDistance() {
         return 2;
     }
 
     @Override
-    public boolean shouldResetPath() {
-        return this.tryingTime % 10 == 0;
+    public boolean shouldRecalculatePath() {
+        return this.tryTicks % 10 == 0;
     }
 
     @Override
-    protected boolean isTargetPos(WorldView world, BlockPos pos) {
+    protected boolean isValidTarget(LevelReader world, BlockPos pos) {
         return placePredicate.test(pos);
     }
 
     @Override
     public void tick() {
-        if(!placePredicate.test(this.targetPos)) {
+        if(!placePredicate.test(this.blockPos)) {
             stop();
             return;
         }
 
-        if (this.hasReached()) {
-            entity.handSwinging = true;
+        if (this.isReachedTarget()) {
+            entity.swinging = true;
             this.placeBlock();
         }
         super.tick();
     }
 
     protected void placeBlock() {
-        if (!entity.world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
+        if (!entity.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
             return;
         }
-        entity.world.breakBlock(this.targetPos, true, entity);
-        entity.world.setBlockState(this.targetPos, targetState);
-        entity.playSound(targetState.getSoundGroup().getPlaceSound(), 1, 1);
+        entity.level.destroyBlock(this.blockPos, true, entity);
+        entity.level.setBlockAndUpdate(this.blockPos, targetState);
+        entity.playSound(targetState.getSoundType().getPlaceSound(), 1, 1);
         stop();
     }
 

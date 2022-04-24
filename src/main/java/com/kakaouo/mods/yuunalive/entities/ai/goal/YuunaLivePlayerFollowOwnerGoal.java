@@ -2,17 +2,16 @@ package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaEntity;
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.pathing.EntityNavigation;
-import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
-import net.minecraft.entity.ai.pathing.PathNodeType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldView;
-
 import java.util.EnumSet;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 
 public class YuunaLivePlayerFollowOwnerGoal extends Goal {
     public static final int field_30205 = 12;
@@ -21,9 +20,9 @@ public class YuunaLivePlayerFollowOwnerGoal extends Goal {
     private static final int VERTICAL_VARIATION = 1;
     private final YuunaLivePlayerEntity entity;
     private LivingEntity owner;
-    private final WorldView world;
+    private final LevelReader world;
     private final double speed;
-    private final EntityNavigation navigation;
+    private final PathNavigation navigation;
     private int updateCountdownTicks;
     private final float maxDistance;
     private final float minDistance;
@@ -33,23 +32,23 @@ public class YuunaLivePlayerFollowOwnerGoal extends Goal {
 
     public YuunaLivePlayerFollowOwnerGoal(YuunaLivePlayerEntity entity, double speed, float minDistance, float maxDistance, boolean leavesAllowed, boolean canTeleport) {
         this.entity = entity;
-        this.world = entity.world;
+        this.world = entity.level;
         this.speed = speed;
         this.navigation = entity.getNavigation();
         this.minDistance = minDistance;
         this.maxDistance = maxDistance;
         this.leavesAllowed = leavesAllowed;
         this.canTeleport = canTeleport;
-        this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
+        this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
-    public boolean canStart() {
+    public boolean canUse() {
         YuunaEntity owner = this.entity.getOwner();
         if (owner == null) {
             return false;
         } else if (owner.isSpectator()) {
             return false;
-        } else if (this.entity.squaredDistanceTo(owner) < (double)(this.minDistance * this.minDistance)) {
+        } else if (this.entity.distanceToSqr(owner) < (double)(this.minDistance * this.minDistance)) {
             return false;
         } else {
             this.owner = owner;
@@ -57,42 +56,42 @@ public class YuunaLivePlayerFollowOwnerGoal extends Goal {
         }
     }
 
-    public boolean shouldContinue() {
-        if (this.navigation.isIdle()) {
+    public boolean canContinueToUse() {
+        if (this.navigation.isDone()) {
             return false;
         } else {
-            return !(this.entity.squaredDistanceTo(this.owner) <= (double)(this.maxDistance * this.maxDistance));
+            return !(this.entity.distanceToSqr(this.owner) <= (double)(this.maxDistance * this.maxDistance));
         }
     }
 
     public void start() {
         this.updateCountdownTicks = 0;
-        this.oldWaterPathfindingPenalty = this.entity.getPathfindingPenalty(PathNodeType.WATER);
-        this.entity.setPathfindingPenalty(PathNodeType.WATER, 0.0F);
+        this.oldWaterPathfindingPenalty = this.entity.getPathfindingMalus(BlockPathTypes.WATER);
+        this.entity.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
     }
 
     public void stop() {
         this.owner = null;
         this.navigation.stop();
-        this.entity.setPathfindingPenalty(PathNodeType.WATER, this.oldWaterPathfindingPenalty);
+        this.entity.setPathfindingMalus(BlockPathTypes.WATER, this.oldWaterPathfindingPenalty);
     }
 
     public void tick() {
-        this.entity.getLookControl().lookAt(this.owner, 10.0F, (float)this.entity.getMaxLookPitchChange());
+        this.entity.getLookControl().setLookAt(this.owner, 10.0F, (float)this.entity.getMaxHeadXRot());
         if (--this.updateCountdownTicks <= 0) {
             this.updateCountdownTicks = 10;
-            if (!this.entity.isLeashed() && !this.entity.hasVehicle()) {
-                if(canTeleport && this.entity.squaredDistanceTo(this.owner) >= 144.0D) {
+            if (!this.entity.isLeashed() && !this.entity.isPassenger()) {
+                if(canTeleport && this.entity.distanceToSqr(this.owner) >= 144.0D) {
                     this.tryTeleport();
                 } else {
-                    this.navigation.startMovingTo(this.owner, this.speed);
+                    this.navigation.moveTo(this.owner, this.speed);
                 }
             }
         }
     }
 
     private void tryTeleport() {
-        BlockPos blockPos = this.owner.getBlockPos();
+        BlockPos blockPos = this.owner.blockPosition();
 
         for(int i = 0; i < 10; ++i) {
             int j = this.getRandomInt(-3, 3);
@@ -112,23 +111,23 @@ public class YuunaLivePlayerFollowOwnerGoal extends Goal {
         } else if (!this.canTeleportTo(new BlockPos(x, y, z))) {
             return false;
         } else {
-            this.entity.refreshPositionAndAngles((double)x + 0.5D, y, (double)z + 0.5D, this.entity.getYaw(), this.entity.getPitch());
+            this.entity.moveTo((double)x + 0.5D, y, (double)z + 0.5D, this.entity.getYRot(), this.entity.getXRot());
             this.navigation.stop();
             return true;
         }
     }
 
     private boolean canTeleportTo(BlockPos pos) {
-        PathNodeType pathNodeType = LandPathNodeMaker.getLandNodeType(this.world, pos.mutableCopy());
-        if (pathNodeType != PathNodeType.WALKABLE) {
+        BlockPathTypes pathNodeType = WalkNodeEvaluator.getBlockPathTypeStatic(this.world, pos.mutable());
+        if (pathNodeType != BlockPathTypes.WALKABLE) {
             return false;
         } else {
-            BlockState blockState = this.world.getBlockState(pos.down());
+            BlockState blockState = this.world.getBlockState(pos.below());
             if (!this.leavesAllowed && blockState.getBlock() instanceof LeavesBlock) {
                 return false;
             } else {
-                BlockPos blockPos = pos.subtract(this.entity.getBlockPos());
-                return this.world.isSpaceEmpty(this.entity, this.entity.getBoundingBox().offset(blockPos));
+                BlockPos blockPos = pos.subtract(this.entity.blockPosition());
+                return this.world.noCollision(this.entity, this.entity.getBoundingBox().move(blockPos));
             }
         }
     }

@@ -2,7 +2,8 @@ package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaEntity;
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import net.minecraft.entity.ai.goal.Goal;
+import java.util.List;
+import net.minecraft.world.entity.ai.goal.Goal;
 
 public class YuunaLivePlayerFindOwnerGoal extends Goal {
     private final YuunaLivePlayerEntity entity;
@@ -12,13 +13,13 @@ public class YuunaLivePlayerFindOwnerGoal extends Goal {
     }
 
     @Override
-    public boolean canStart() {
+    public boolean canUse() {
         return entity.getOwner() == null;
     }
 
     @Override
     public void tick() {
-        var list = entity.world.getEntitiesByClass(YuunaEntity.class, entity.getBoundingBox().expand(entity.getOwnerFindRange()), e -> true);
+        var list = entity.level.getEntitiesOfClass(YuunaEntity.class, entity.getBoundingBox().inflate(entity.getOwnerFindRange()), e -> true);
         if (!list.isEmpty()) {
             entity.setOwner(list.get(0));
         }

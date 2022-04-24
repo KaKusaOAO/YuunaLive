@@ -1,12 +1,11 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ai.goal.Goal;
-
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Predicate;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.goal.Goal;
 
 public class YuunaLivePlayerFindMobGoal extends Goal {
     private final YuunaLivePlayerEntity entity;
@@ -19,7 +18,7 @@ public class YuunaLivePlayerFindMobGoal extends Goal {
         this.entity = entity;
         this.entityClass = entityClass;
         this.predicate = predicate;
-        this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
+        this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
     public YuunaLivePlayerFindMobGoal findRange(double range) {
@@ -32,14 +31,14 @@ public class YuunaLivePlayerFindMobGoal extends Goal {
     }
 
     @Override
-    public boolean canStart() {
+    public boolean canUse() {
         return entity.getRandom().nextFloat() < 0.25f &&
-                !entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), e -> predicate.test(e) && e.distanceTo(entity) > 8).isEmpty();
+                !entity.level.getEntitiesOfClass(entityClass, entity.getBoundingBox().inflate(findRange), e -> predicate.test(e) && e.distanceTo(entity) > 8).isEmpty();
     }
 
     @Override
-    public boolean shouldContinue() {
-        return !entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(8.0), predicate).isEmpty();
+    public boolean canContinueToUse() {
+        return !entity.level.getEntitiesOfClass(entityClass, entity.getBoundingBox().inflate(8.0), predicate).isEmpty();
     }
 
     @Override
@@ -52,11 +51,11 @@ public class YuunaLivePlayerFindMobGoal extends Goal {
     public void tick() {
         if (--this.updateCountdownTicks <= 0) {
             this.updateCountdownTicks = 10;
-            List<? extends Entity> list = entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), predicate);
+            List<? extends Entity> list = entity.level.getEntitiesOfClass(entityClass, entity.getBoundingBox().inflate(findRange), predicate);
             if (!list.isEmpty()) {
                 Entity e = list.get(0);
-                entity.getLookControl().lookAt(e, 10.0F, (float) entity.getMaxLookPitchChange());
-                entity.getNavigation().startMovingTo(e, 1.2000000476837158D);
+                entity.getLookControl().setLookAt(e, 10.0F, (float) entity.getMaxHeadXRot());
+                entity.getNavigation().moveTo(e, 1.2000000476837158D);
                 if (e.distanceTo(entity) < entity.getRandom().nextInt(5) + 3) {
                     stop();
                 }

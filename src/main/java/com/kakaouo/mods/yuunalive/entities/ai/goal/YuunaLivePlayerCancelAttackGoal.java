@@ -1,10 +1,10 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.TrackTargetGoal;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 
-public class YuunaLivePlayerCancelAttackGoal extends TrackTargetGoal {
+public class YuunaLivePlayerCancelAttackGoal extends TargetGoal {
     private final YuunaLivePlayerEntity entity;
 
     public YuunaLivePlayerCancelAttackGoal(YuunaLivePlayerEntity entity) {
@@ -12,7 +12,7 @@ public class YuunaLivePlayerCancelAttackGoal extends TrackTargetGoal {
         this.entity = entity;
     }
 
-    public boolean canStart() {
+    public boolean canUse() {
         LivingEntity target = entity.getTarget();
         return target != null && entity.getAttackScore(target) < 0;
     }

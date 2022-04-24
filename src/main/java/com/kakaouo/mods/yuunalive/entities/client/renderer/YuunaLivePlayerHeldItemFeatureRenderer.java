@@ -2,53 +2,53 @@ package com.kakaouo.mods.yuunalive.entities.client.renderer;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
 import com.kakaouo.mods.yuunalive.entities.client.model.YuunaLivePlayerEntityModel;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.feature.HeadFeatureRenderer;
-import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
-import net.minecraft.client.render.entity.model.ModelWithHead;
-import net.minecraft.client.render.model.json.ModelTransformation;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Arm;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HeadedModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 @Environment(value= EnvType.CLIENT)
 public class YuunaLivePlayerHeldItemFeatureRenderer<M extends YuunaLivePlayerEntityModel>
-        extends HeldItemFeatureRenderer<YuunaLivePlayerEntity, M> {
+        extends ItemInHandLayer<YuunaLivePlayerEntity, M> {
     private static final float HEAD_YAW = -0.5235988f;
     private static final float HEAD_ROLL = 1.5707964f;
 
-    public YuunaLivePlayerHeldItemFeatureRenderer(FeatureRendererContext<YuunaLivePlayerEntity, M> featureRendererContext) {
+    public YuunaLivePlayerHeldItemFeatureRenderer(RenderLayerParent<YuunaLivePlayerEntity, M> featureRendererContext) {
         super(featureRendererContext);
     }
 
     @Override
-    protected void renderItem(LivingEntity entity, ItemStack stack, ModelTransformation.Mode transformationMode, Arm arm, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
-        if (stack.isOf(Items.SPYGLASS) && entity.getActiveItem() == stack && entity.handSwingTicks == 0) {
+    protected void renderArmWithItem(LivingEntity entity, ItemStack stack, ItemTransforms.TransformType transformationMode, HumanoidArm arm, PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
+        if (stack.is(Items.SPYGLASS) && entity.getUseItem() == stack && entity.swingTime == 0) {
             this.renderSpyglass(entity, stack, arm, matrices, vertexConsumers, light);
         } else {
-            super.renderItem(entity, stack, transformationMode, arm, matrices, vertexConsumers, light);
+            super.renderArmWithItem(entity, stack, transformationMode, arm, matrices, vertexConsumers, light);
         }
     }
 
-    private void renderSpyglass(LivingEntity entity, ItemStack stack, Arm arm, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
-        matrices.push();
-        ModelPart modelPart = ((ModelWithHead)this.getContextModel()).getHead();
-        float f = modelPart.pitch;
-        modelPart.pitch = MathHelper.clamp(modelPart.pitch, -0.5235988f, 1.5707964f);
-        modelPart.rotate(matrices);
-        modelPart.pitch = f;
-        HeadFeatureRenderer.translate(matrices, false);
-        boolean bl = arm == Arm.LEFT;
+    private void renderSpyglass(LivingEntity entity, ItemStack stack, HumanoidArm arm, PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
+        matrices.pushPose();
+        ModelPart modelPart = ((HeadedModel)this.getParentModel()).getHead();
+        float f = modelPart.xRot;
+        modelPart.xRot = Mth.clamp(modelPart.xRot, -0.5235988f, 1.5707964f);
+        modelPart.translateAndRotate(matrices);
+        modelPart.xRot = f;
+        CustomHeadLayer.translateToHead(matrices, false);
+        boolean bl = arm == HumanoidArm.LEFT;
         matrices.translate((bl ? -2.5f : 2.5f) / 16.0f, -0.0625, 0.0);
-        MinecraftClient.getInstance().getHeldItemRenderer().renderItem(entity, stack, ModelTransformation.Mode.HEAD, false, matrices, vertexConsumers, light);
-        matrices.pop();
+        Minecraft.getInstance().getItemInHandRenderer().renderItem(entity, stack, ItemTransforms.TransformType.HEAD, false, matrices, vertexConsumers, light);
+        matrices.popPose();
     }
 }

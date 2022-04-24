@@ -2,9 +2,8 @@ package com.kakaouo.mods.yuunalive.waila;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
 import mcp.mobius.waila.api.*;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Formatting;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TextComponent;
 import java.util.UUID;
 
 public class YuunaLivePlayerEntityComponentProvider implements IEntityComponentProvider {
@@ -13,15 +12,15 @@ public class YuunaLivePlayerEntityComponentProvider implements IEntityComponentP
         YuunaLivePlayerEntity entity = accessor.getEntity();
         UUID owner = entity.getOwnerUuid();
         if(owner != null) {
-            tooltip.add(new LiteralText("Owner: " + owner));
+            tooltip.add(new TextComponent("Owner: " + owner));
         } else {
-            tooltip.add(new LiteralText("No Owner"));
+            tooltip.add(new TextComponent("No Owner"));
         }
     }
 
     @Override
     public void appendHead(ITooltip tooltip, IEntityAccessor accessor, IPluginConfig config) {
         YuunaLivePlayerEntity entity = accessor.getEntity();
-        tooltip.set(WailaConstants.OBJECT_NAME_TAG, new LiteralText("").formatted(Formatting.WHITE).append(entity.getName()));
+        tooltip.set(WailaConstants.OBJECT_NAME_TAG, new TextComponent("").withStyle(ChatFormatting.WHITE).append(entity.getName()));
     }
 }

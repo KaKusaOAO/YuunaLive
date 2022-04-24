@@ -4,21 +4,26 @@ import com.kakaouo.mods.yuunalive.annotations.PlayerName;
 import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
 import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
 import com.kakaouo.mods.yuunalive.util.KakaUtils;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.ActiveTargetGoal;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 
 @PlayerSkin(value = "textures/entities/1no/1.png", slim = true)
 @PlayerName("Support1NO")
 @PlayerNickname("伊布")
 public class Support1NoEntity extends YuunaLivePlayerEntity {
-    protected Support1NoEntity(EntityType<Support1NoEntity> entityType, World world) {
+    static boolean shouldBeExcluded() {
+        return true;
+    }
+
+    protected Support1NoEntity(EntityType<Support1NoEntity> entityType, Level world) {
         super(entityType, world);
     }
 
@@ -26,7 +31,7 @@ public class Support1NoEntity extends YuunaLivePlayerEntity {
     protected void initCustomGoals() {
         super.initCustomGoals();
 
-        this.targetSelector.add(2, new ActiveTargetGoal<>(this, YuunaLivePlayerEntity.class, 0,
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, YuunaLivePlayerEntity.class, 0,
                 false, false, this::canAttack
         ));
     }
@@ -42,26 +47,26 @@ public class Support1NoEntity extends YuunaLivePlayerEntity {
     }
 
     @Override
-    public boolean isFireImmune() {
+    public boolean fireImmune() {
         return true;
     }
 
     @Override
-    public void tickMovement() {
-        super.tickMovement();
-        if(world instanceof ServerWorld sw) {
-            var d = KakaUtils.getDirection((age * 20) % 360, 0).multiply(0.5);
-            sw.spawnParticles(ParticleTypes.HEART, getX() + d.x, getEyeY() + 1, getZ() + d.z, 1, 0, 0, 0, 10);
+    public void aiStep() {
+        super.aiStep();
+        if(level instanceof ServerLevel sw) {
+            var d = KakaUtils.getDirection((tickCount * 20) % 360, 0).scale(0.5);
+            sw.sendParticles(ParticleTypes.HEART, getX() + d.x, getEyeY() + 1, getZ() + d.z, 1, 0, 0, 0, 10);
         }
     }
 
     @Override
-    public void onAttacking(Entity target) {
-        super.onAttacking(target);
-        if(world instanceof ServerWorld sw) {
-            BlockPos pos = getBlockPos();
+    public void setLastHurtMob(Entity target) {
+        super.setLastHurtMob(target);
+        if(level instanceof ServerLevel sw) {
+            BlockPos pos = blockPosition();
             if(sw.getBlockState(pos).isAir()) {
-                sw.setBlockState(pos, Blocks.FIRE.getDefaultState());
+                sw.setBlockAndUpdate(pos, Blocks.FIRE.defaultBlockState());
             }
         }
     }

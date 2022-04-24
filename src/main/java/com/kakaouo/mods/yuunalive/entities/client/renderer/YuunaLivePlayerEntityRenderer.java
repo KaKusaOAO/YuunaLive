@@ -2,83 +2,87 @@ package com.kakaouo.mods.yuunalive.entities.client.renderer;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
 import com.kakaouo.mods.yuunalive.entities.client.model.YuunaLivePlayerEntityModel;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.BipedEntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
-import net.minecraft.client.render.entity.model.EntityModelLayers;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.CrossbowItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Arm;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.UseAction;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.renderer.entity.layers.*;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.UseAnim;
 
-public class YuunaLivePlayerEntityRenderer extends BipedEntityRenderer<YuunaLivePlayerEntity, YuunaLivePlayerEntityModel> {
-    public YuunaLivePlayerEntityRenderer(EntityRendererFactory.Context ctx, boolean slim) {
-        super(ctx, new YuunaLivePlayerEntityModel(ctx.getPart(slim ? EntityModelLayers.PLAYER_SLIM : EntityModelLayers.PLAYER), slim), 0.5f);
-        this.addFeature(new ArmorFeatureRenderer<>(this, new BipedEntityModel<>(ctx.getPart(slim ? EntityModelLayers.PLAYER_SLIM_INNER_ARMOR : EntityModelLayers.PLAYER_INNER_ARMOR)), new BipedEntityModel(ctx.getPart(slim ? EntityModelLayers.PLAYER_SLIM_OUTER_ARMOR : EntityModelLayers.PLAYER_OUTER_ARMOR))));
-        this.addFeature(new YuunaLivePlayerHeldItemFeatureRenderer<>(this));
-        this.addFeature(new YuunaLivePlayerStuckArrowsFeatureRenderer<>(ctx, this));
-        // this.addFeature(new Deadmau5FeatureRenderer(this));
-        this.addFeature(new YuunaLivePlayerCapeFeatureRenderer(this));
-        // this.addFeature(new HeadFeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>>(this, ctx.getModelLoader()));
-        // this.addFeature(new ElytraFeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>>(this, ctx.getModelLoader()));
-        // this.addFeature(new ShoulderParrotFeatureRenderer<AbstractClientPlayerEntity>(this, ctx.getModelLoader()));
-        // this.addFeature(new TridentRiptideFeatureRenderer<AbstractClientPlayerEntity>(this, ctx.getModelLoader()));
-        // this.addFeature(new StuckStingersFeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>>(this));
+public class YuunaLivePlayerEntityRenderer extends HumanoidMobRenderer<YuunaLivePlayerEntity, YuunaLivePlayerEntityModel> {
+    public YuunaLivePlayerEntityRenderer(EntityRendererProvider.Context ctx, boolean slim) {
+        super(ctx, new YuunaLivePlayerEntityModel(ctx.bakeLayer(slim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), slim), 0.5f);
+        this.addLayer(new HumanoidArmorLayer<>(this,
+                new HumanoidModel<>(ctx.bakeLayer(slim ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)),
+                new HumanoidModel<>(ctx.bakeLayer(slim ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR))
+        ));
+        this.addLayer(new YuunaLivePlayerHeldItemFeatureRenderer<>(this));
+        this.addLayer(new YuunaLivePlayerStuckArrowsFeatureRenderer<>(ctx, this));
+        this.addLayer(new YuunaLivePlayerCapeFeatureRenderer(this));
+
+        // this.addLayer(new CustomHeadLayer(this, context.getModelSet()));
+        // this.addLayer(new ElytraLayer(this, context.getModelSet()));
+        // this.addLayer(new ParrotOnShoulderLayer(this, context.getModelSet()));
+        // this.addLayer(new SpinAttackEffectLayer(this, context.getModelSet()));
+        // this.addLayer(new BeeStingerLayer(this));
     }
 
     @Override
-    public Identifier getTexture(YuunaLivePlayerEntity entity) {
+    public ResourceLocation getTextureLocation(YuunaLivePlayerEntity entity) {
         return entity.getTexture();
     }
 
     @Override
-    protected boolean hasLabel(YuunaLivePlayerEntity mobEntity) {
+    protected boolean shouldShowName(YuunaLivePlayerEntity mobEntity) {
         return true;
     }
 
-    private static BipedEntityModel.ArmPose getArmPose(YuunaLivePlayerEntity player, Hand hand) {
-        ItemStack itemStack = player.getStackInHand(hand);
+    private static HumanoidModel.ArmPose getArmPose(YuunaLivePlayerEntity player, InteractionHand hand) {
+        ItemStack itemStack = player.getItemInHand(hand);
         if (itemStack.isEmpty()) {
-            return BipedEntityModel.ArmPose.EMPTY;
+            return HumanoidModel.ArmPose.EMPTY;
         }
-        if (player.getActiveHand() == hand && player.getItemUseTimeLeft() > 0) {
-            UseAction useAction = itemStack.getUseAction();
-            if (useAction == UseAction.BLOCK) {
-                return BipedEntityModel.ArmPose.BLOCK;
+        if (player.getUsedItemHand() == hand && player.getUseItemRemainingTicks() > 0) {
+            UseAnim useAction = itemStack.getUseAnimation();
+            if (useAction == UseAnim.BLOCK) {
+                return HumanoidModel.ArmPose.BLOCK;
             }
-            if (useAction == UseAction.BOW) {
-                return BipedEntityModel.ArmPose.BOW_AND_ARROW;
+            if (useAction == UseAnim.BOW) {
+                return HumanoidModel.ArmPose.BOW_AND_ARROW;
             }
-            if (useAction == UseAction.SPEAR) {
-                return BipedEntityModel.ArmPose.THROW_SPEAR;
+            if (useAction == UseAnim.SPEAR) {
+                return HumanoidModel.ArmPose.THROW_SPEAR;
             }
-            if (useAction == UseAction.CROSSBOW && hand == player.getActiveHand()) {
-                return BipedEntityModel.ArmPose.CROSSBOW_CHARGE;
+            if (useAction == UseAnim.CROSSBOW && hand == player.getUsedItemHand()) {
+                return HumanoidModel.ArmPose.CROSSBOW_CHARGE;
             }
-            if (useAction == UseAction.SPYGLASS) {
-                return BipedEntityModel.ArmPose.SPYGLASS;
+            if (useAction == UseAnim.SPYGLASS) {
+                return HumanoidModel.ArmPose.SPYGLASS;
             }
-        } else if (!player.handSwinging && itemStack.isOf(Items.CROSSBOW) && CrossbowItem.isCharged(itemStack)) {
-            return BipedEntityModel.ArmPose.CROSSBOW_HOLD;
+        } else if (!player.swinging && itemStack.is(Items.CROSSBOW) && CrossbowItem.isCharged(itemStack)) {
+            return HumanoidModel.ArmPose.CROSSBOW_HOLD;
         }
-        return BipedEntityModel.ArmPose.ITEM;
+        return HumanoidModel.ArmPose.ITEM;
     }
 
     private void setModelPose(YuunaLivePlayerEntity player) {
         YuunaLivePlayerEntityModel playerEntityModel = getModel();
-        playerEntityModel.sneaking = player.isInSneakingPose();
-        BipedEntityModel.ArmPose armPose = getArmPose(player, Hand.MAIN_HAND);
-        BipedEntityModel.ArmPose armPose2 = getArmPose(player, Hand.OFF_HAND);
+        playerEntityModel.crouching = player.isCrouching();
+        HumanoidModel.ArmPose armPose = getArmPose(player, InteractionHand.MAIN_HAND);
+        HumanoidModel.ArmPose armPose2 = getArmPose(player, InteractionHand.OFF_HAND);
         if (armPose.isTwoHanded()) {
-            armPose2 = player.getOffHandStack().isEmpty() ? BipedEntityModel.ArmPose.EMPTY : BipedEntityModel.ArmPose.ITEM;
+            armPose2 = player.getOffhandItem().isEmpty() ? HumanoidModel.ArmPose.EMPTY : HumanoidModel.ArmPose.ITEM;
         }
-        if (player.getMainArm() == Arm.RIGHT) {
+        if (player.getMainArm() == HumanoidArm.RIGHT) {
             playerEntityModel.rightArmPose = armPose;
             playerEntityModel.leftArmPose = armPose2;
         } else {
@@ -88,7 +92,7 @@ public class YuunaLivePlayerEntityRenderer extends BipedEntityRenderer<YuunaLive
     }
 
     @Override
-    public void render(YuunaLivePlayerEntity entity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
+    public void render(YuunaLivePlayerEntity entity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i) {
         this.setModelPose(entity);
         super.render(entity, f, g, matrixStack, vertexConsumerProvider, i);
     }

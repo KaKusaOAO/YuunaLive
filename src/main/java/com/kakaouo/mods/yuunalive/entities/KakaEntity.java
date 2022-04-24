@@ -6,29 +6,29 @@ import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
 import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerFindMobGoal;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.YuunaLivePlayerPickupMobGoal;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.ActiveTargetGoal;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.TextColor;
-import net.minecraft.world.World;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-@PlayerSkin("textures/entities/kaka/1.png")
+@PlayerSkin(value = "textures/entities/kaka/1.png", slim = true)
 @PlayerCape("textures/entities/kaka/cape.png")
-@PlayerName("ItsKaka_OuO")
+@PlayerName("Ka_KusaOAO")
 @PlayerNickname("咔咔")
 public class KakaEntity extends YuunaLivePlayerEntity {
-    protected KakaEntity(EntityType<KakaEntity> entityType, World world) {
+    protected KakaEntity(EntityType<KakaEntity> entityType, Level world) {
         super(entityType, world);
     }
 
     @Override
     public TextColor getNickNameColor() {
-        return TextColor.fromRgb(0xff741f);
+        return TextColor.fromRgb(0x67dca3);
     }
 
     @Override
@@ -39,9 +39,9 @@ public class KakaEntity extends YuunaLivePlayerEntity {
     @Override
     protected void initCustomGoals() {
         super.initCustomGoals();
-        this.goalSelector.add(6, new YuunaLivePlayerFindMobGoal(this, GinaChenEntity.class));
-        this.goalSelector.add(1, new YuunaLivePlayerPickupMobGoal(this, YuunaLivePlayerEntity.class));   // Chaos!
-        this.targetSelector.add(2, new ActiveTargetGoal<>(this, MobEntity.class, 0,
+        this.goalSelector.addGoal(6, new YuunaLivePlayerFindMobGoal(this, GinaChenEntity.class));
+        this.goalSelector.addGoal(1, new YuunaLivePlayerPickupMobGoal(this, YuunaLivePlayerEntity.class));   // Chaos!
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Mob.class, 0,
                 false, false, this::canAttack
         ));
     }
@@ -64,15 +64,15 @@ public class KakaEntity extends YuunaLivePlayerEntity {
     private int groundTick = 0;
 
     @Override
-    public void tickMovement() {
-        super.tickMovement();
-        setSprinting(isNavigating());
+    public void aiStep() {
+        super.aiStep();
+        setSprinting(isPathFinding());
 
-        if(isOnGround() && !isNavigating()) {
+        if(isOnGround() && !isPathFinding()) {
             groundTick++;
             if(groundTick >= 20) {
                 groundTick = 0;
-                getJumpControl().setActive();
+                getJumpControl().jump();
             }
         }
     }
@@ -80,23 +80,23 @@ public class KakaEntity extends YuunaLivePlayerEntity {
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
-        return SoundEvents.ENTITY_FOX_AMBIENT;
+        return SoundEvents.FOX_AMBIENT;
     }
 
     @Override
     @Nullable
     protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ENTITY_FOX_HURT;
+        return SoundEvents.FOX_HURT;
     }
 
     @Override
     @Nullable
     protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_FOX_DEATH;
+        return SoundEvents.FOX_DEATH;
     }
 
     @Override
     public SoundEvent getPanicSound() {
-        return SoundEvents.ENTITY_FOX_HURT;
+        return SoundEvents.FOX_HURT;
     }
 }

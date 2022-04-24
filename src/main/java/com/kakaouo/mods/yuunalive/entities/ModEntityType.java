@@ -7,13 +7,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -45,17 +44,23 @@ public final class ModEntityType {
         for(Class<?> clz : KakaUtils.getClassesOfPackage(ModEntityType.class.getPackage())) {
             if(YuunaLivePlayerEntity.class.isAssignableFrom(clz) && !clz.equals(YuunaLivePlayerEntity.class)) {
                 Class<? extends YuunaLivePlayerEntity> c = (Class<? extends YuunaLivePlayerEntity>) clz;
-                registerYuunaLivePlayer(c);
+                try {
+                    if (!(boolean) c.getDeclaredMethod("shouldBeExcluded").invoke(null)) {
+                        registerYuunaLivePlayer(c);
+                    }
+                } catch(NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
+                    registerYuunaLivePlayer(c);
+                }
             }
         }
     }
 
     @SuppressWarnings("unchecked")
     private static <T extends YuunaLivePlayerEntity> EntityType<T> registerYuunaLivePlayer(Class<T> clz) {
-        Identifier id = YuunaLivePlayerEntity.getIdentifier(clz);
+        ResourceLocation id = YuunaLivePlayerEntity.getIdentifier(clz);
         EntityType.EntityFactory<T> builder = (type, world) -> {
             try {
-                Constructor<?> ctor = clz.getDeclaredConstructor(EntityType.class, World.class);
+                Constructor<?> ctor = clz.getDeclaredConstructor(EntityType.class, Level.class);
                 ctor.setAccessible(true);
                 return (T)ctor.newInstance(type, world);
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ex) {
@@ -73,12 +78,12 @@ public final class ModEntityType {
     }
 
     private static <T extends YuunaLivePlayerEntity> void registerClientRenderer(Class<T> clz, EntityType<T> type) {
-        EntityRendererFactory<YuunaLivePlayerEntity> normal = ctx -> new YuunaLivePlayerEntityRenderer(ctx, false);
-        EntityRendererFactory<YuunaLivePlayerEntity> slim = ctx -> new YuunaLivePlayerEntityRenderer(ctx, true);
+        EntityRendererProvider<YuunaLivePlayerEntity> normal = ctx -> new YuunaLivePlayerEntityRenderer(ctx, false);
+        EntityRendererProvider<YuunaLivePlayerEntity> slim = ctx -> new YuunaLivePlayerEntityRenderer(ctx, true);
         EntityRendererRegistry.register(type, YuunaLivePlayerEntity.isSlim(clz) ? slim : normal);
     }
 
-    private static <T extends Entity> EntityType<T> register(Class<T> clz, Identifier id, EntityType<T> type) {
+    private static <T extends Entity> EntityType<T> register(Class<T> clz, ResourceLocation id, EntityType<T> type) {
         EntityType<T> result = Registry.register(Registry.ENTITY_TYPE, id, type);
         clzTypeMap.put(clz, type);
         return result;

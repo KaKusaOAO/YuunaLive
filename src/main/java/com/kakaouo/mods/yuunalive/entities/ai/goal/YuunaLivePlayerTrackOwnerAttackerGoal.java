@@ -2,13 +2,12 @@ package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaEntity;
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.TargetPredicate;
-import net.minecraft.entity.ai.goal.TrackTargetGoal;
-
 import java.util.EnumSet;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 
-public class YuunaLivePlayerTrackOwnerAttackerGoal extends TrackTargetGoal {
+public class YuunaLivePlayerTrackOwnerAttackerGoal extends TargetGoal {
     private final YuunaLivePlayerEntity entity;
     private LivingEntity attacker;
     private int lastAttackedTime;
@@ -16,17 +15,17 @@ public class YuunaLivePlayerTrackOwnerAttackerGoal extends TrackTargetGoal {
     public YuunaLivePlayerTrackOwnerAttackerGoal(YuunaLivePlayerEntity entity) {
         super(entity, false);
         this.entity = entity;
-        this.setControls(EnumSet.of(Control.TARGET));
+        this.setFlags(EnumSet.of(Flag.TARGET));
     }
 
-    public boolean canStart() {
+    public boolean canUse() {
         YuunaEntity yuuna = this.entity.getOwner();
         if (yuuna == null) {
             return false;
         } else {
-            this.attacker = yuuna.getAttacker();
-            int i = yuuna.getLastAttackedTime();
-            return i != this.lastAttackedTime && this.canTrack(this.attacker, TargetPredicate.DEFAULT) && this.entity.canAttackWithOwner(this.attacker, yuuna);
+            this.attacker = yuuna.getLastHurtByMob();
+            int i = yuuna.getLastHurtByMobTimestamp();
+            return i != this.lastAttackedTime && this.canAttack(this.attacker, TargetingConditions.DEFAULT) && this.entity.canAttackWithOwner(this.attacker, yuuna);
         }
     }
 
@@ -34,7 +33,7 @@ public class YuunaLivePlayerTrackOwnerAttackerGoal extends TrackTargetGoal {
         this.mob.setTarget(this.attacker);
         LivingEntity livingEntity = this.entity.getOwner();
         if (livingEntity != null) {
-            this.lastAttackedTime = livingEntity.getLastAttackedTime();
+            this.lastAttackedTime = livingEntity.getLastHurtByMobTimestamp();
         }
 
         super.start();

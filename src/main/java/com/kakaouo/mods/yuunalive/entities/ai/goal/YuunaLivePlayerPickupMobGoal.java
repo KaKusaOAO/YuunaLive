@@ -1,13 +1,12 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.sound.SoundEvents;
-
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Predicate;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.goal.Goal;
 
 public class YuunaLivePlayerPickupMobGoal extends Goal {
     private final YuunaLivePlayerEntity entity;
@@ -19,9 +18,9 @@ public class YuunaLivePlayerPickupMobGoal extends Goal {
         this.entity = entity;
         this.entityClass = entityClass;
         this.predicate = e -> {
-            return predicate.test(e) && !e.hasVehicle();
+            return predicate.test(e) && !e.isPassenger();
         };
-        this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
+        this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
     public YuunaLivePlayerPickupMobGoal(YuunaLivePlayerEntity entity, Class<? extends Entity> entityClass) {
@@ -34,34 +33,34 @@ public class YuunaLivePlayerPickupMobGoal extends Goal {
     }
 
     @Override
-    public boolean canStart() {
-        if (entity.hasPassengers()) {
+    public boolean canUse() {
+        if (entity.isVehicle()) {
             return false;
         }
 
         if (entity.getRandom().nextInt(10) != 0) {
             return false;
         } else {
-            List<? extends Entity> list = entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), predicate);
+            List<? extends Entity> list = entity.level.getEntitiesOfClass(entityClass, entity.getBoundingBox().inflate(findRange), predicate);
             return !list.isEmpty();
         }
     }
 
     @Override
     public void tick() {
-        List<? extends Entity> list = entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), predicate);
-        if (!entity.hasPassengers() && !list.isEmpty()) {
+        List<? extends Entity> list = entity.level.getEntitiesOfClass(entityClass, entity.getBoundingBox().inflate(findRange), predicate);
+        if (!entity.isVehicle() && !list.isEmpty()) {
             Entity target = list.get(0);
             if(target == entity) {
                 stop();
                 return;
             }
 
-            entity.getNavigation().startMovingTo(target, 1.2000000476837158D);
+            entity.getNavigation().moveTo(target, 1.2000000476837158D);
             if(target.distanceTo(entity) < 3) {
-                if(target.hasVehicle()) {
+                if(target.isPassenger()) {
                     Entity e = target.getVehicle();
-                    entity.tryAttack(e);
+                    entity.doHurtTarget(e);
                 }
                 target.startRiding(entity, true);
                 if(entity.getTarget() == target) {
@@ -70,16 +69,16 @@ public class YuunaLivePlayerPickupMobGoal extends Goal {
                 if(target instanceof YuunaLivePlayerEntity yp) {
                     yp.setPanicking(true);
                 }
-                entity.playSound(SoundEvents.ENTITY_PIG_SADDLE, 1, 1);
+                entity.playSound(SoundEvents.PIG_SADDLE, 1, 1);
             }
         }
     }
 
     @Override
     public void start() {
-        List<? extends Entity> list = entity.world.getEntitiesByClass(entityClass, entity.getBoundingBox().expand(findRange), predicate);
+        List<? extends Entity> list = entity.level.getEntitiesOfClass(entityClass, entity.getBoundingBox().inflate(findRange), predicate);
         if (!list.isEmpty()) {
-            entity.getNavigation().startMovingTo(list.get(0), 1.2000000476837158D);
+            entity.getNavigation().moveTo(list.get(0), 1.2000000476837158D);
         }
     }
 }

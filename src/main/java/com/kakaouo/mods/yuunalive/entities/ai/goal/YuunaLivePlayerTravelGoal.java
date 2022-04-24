@@ -1,22 +1,21 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.Travellable;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.util.math.BlockPos;
-
 import java.util.EnumSet;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.Goal;
 
-public class YuunaLivePlayerTravelGoal<T extends MobEntity & Travellable> extends Goal {
+public class YuunaLivePlayerTravelGoal<T extends Mob & Travellable> extends Goal {
     private final T entity;
     private int updateCountdownTicks;
 
     public YuunaLivePlayerTravelGoal(T entity) {
         this.entity = entity;
-        this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
+        this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
-    public boolean canStart() {
+    public boolean canUse() {
         return entity.doesWantToAdventure() && entity.getTravelTarget() != null;
     }
 
@@ -32,12 +31,12 @@ public class YuunaLivePlayerTravelGoal<T extends MobEntity & Travellable> extend
         if (--this.updateCountdownTicks <= 0) {
             this.updateCountdownTicks = 400;
             BlockPos target = entity.getTravelTarget();
-            entity.getNavigation().startMovingTo(target.getX(), target.getY(), target.getZ(), 1);
+            entity.getNavigation().moveTo(target.getX(), target.getY(), target.getZ(), 1);
 
-            BlockPos.Mutable curr = entity.getBlockPos().mutableCopy();
+            BlockPos.MutableBlockPos curr = entity.blockPosition().mutable();
             BlockPos travelTarget = entity.getTravelTarget();
             curr.setY(travelTarget.getY());
-            if(curr.isWithinDistance(travelTarget, 16)) {
+            if(curr.closerThan(travelTarget, 16)) {
                 if(entity.getRandom().nextInt(100) == 0) {
                     entity.setWantsToAdventure(false);
                 }
@@ -46,11 +45,11 @@ public class YuunaLivePlayerTravelGoal<T extends MobEntity & Travellable> extend
     }
 
     @Override
-    public boolean shouldContinue() {
-        BlockPos.Mutable curr = entity.getBlockPos().mutableCopy();
+    public boolean canContinueToUse() {
+        BlockPos.MutableBlockPos curr = entity.blockPosition().mutable();
         BlockPos travelTarget = entity.getTravelTarget();
         curr.setY(travelTarget.getY());
-        return canStart() && !curr.isWithinDistance(travelTarget, 16);
+        return canUse() && !curr.closerThan(travelTarget, 16);
     }
 
     @Override
