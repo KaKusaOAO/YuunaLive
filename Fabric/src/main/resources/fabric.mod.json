@@ -22,7 +22,7 @@
     ]
   },
   "mixins": [
-    "YuunaLive.mixins.json"
+    "yuunalive.fabric.mixins.json"
   ],
   "depends": {
     "fabricloader": "*",

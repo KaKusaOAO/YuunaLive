@@ -76,10 +76,10 @@ public abstract class YuunaLivePlayerEntity extends PathfinderMob implements Ran
         this.updateAttackType();
     }
 
-    protected static <T extends YuunaLivePlayerEntity> EntityType<T> getType(EntityType.EntityFactory<T> builder) {
+    protected static <T extends YuunaLivePlayerEntity> EntityType.Builder<T> createBuilder(EntityType.EntityFactory<T> builder) {
         return EntityType.Builder.of(builder, MobCategory.CREATURE)
                 .canSpawnFarFromPlayer()
-                .sized(0.6f, 1.95f).build("");
+                .sized(0.6f, 1.95f);
     }
 
     public static AttributeSupplier.Builder createPlayerAttributes() {

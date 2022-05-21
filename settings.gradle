@@ -14,4 +14,5 @@ pluginManagement {
 
 rootProject.name = 'YuunaLive'
 include 'Common', 'Fabric'
+include 'Forge'
 

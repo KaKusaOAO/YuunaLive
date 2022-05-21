@@ -1,29 +1,51 @@
 package com.kakaouo.mods.yuunalive.entities;
 
 import com.kakaouo.mods.yuunalive.Platform;
+import com.kakaouo.mods.yuunalive.PlatformManager;
 import com.kakaouo.mods.yuunalive.YuunaLive;
 import com.kakaouo.mods.yuunalive.entities.client.renderer.YuunaLivePlayerEntityRenderer;
 import com.kakaouo.mods.yuunalive.util.KakaUtils;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Contract;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public final class ModEntityType {
     private static final Map<Class<? extends Entity>, EntityType<? extends Entity>> clzTypeMap = new HashMap<>();
     private static final Map<EntityType<? extends Entity>, Class<? extends Entity>> typeClzMap = new HashMap<>();
+    private static CompletableFuture<Void> untilAllRegistered;
 
     static {
-        registerAllByReflection();
+        // registerAllByReflection();
+        List<Class<? extends YuunaLivePlayerEntity>> classes = new ArrayList<>();
+        classes.add(GinaChenEntity.class);
+        classes.add(KakaEntity.class);
+        classes.add(KiuryilEntity.class);
+        classes.add(YunariEntity.class);
+        classes.add(YuruEntity.class);
+        classes.add(YuunaEntity.class);
+
+        List<CompletableFuture<?>> futures = new ArrayList<>();
+        for (Class<? extends YuunaLivePlayerEntity> clz : classes) {
+            futures.add(createYuunaPlayerBuilderAsync(clz));
+        }
+
+        untilAllRegistered = CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0]));
+    }
+
+    public static CompletableFuture<Void> waitUntilAllRegisteredAsync() {
+        if (untilAllRegistered.isDone()) return CompletableFuture.completedFuture(null);
+        return untilAllRegistered;
     }
 
     public static EntityType<? extends Entity> getTypeByClass(Class<?> clz) {
@@ -50,10 +72,10 @@ public final class ModEntityType {
                 Class<? extends YuunaLivePlayerEntity> c = (Class<? extends YuunaLivePlayerEntity>) clz;
                 try {
                     if (!(boolean) c.getDeclaredMethod("shouldBeExcluded").invoke(null)) {
-                        registerYuunaLivePlayer(c);
+                        createYuunaPlayerBuilderAsync(c);
                     }
                 } catch(NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
-                    registerYuunaLivePlayer(c);
+                    createYuunaPlayerBuilderAsync(c);
                 }
             }
         }
@@ -61,9 +83,9 @@ public final class ModEntityType {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends YuunaLivePlayerEntity> EntityType<T> registerYuunaLivePlayer(Class<T> clz) {
+    private static <T extends YuunaLivePlayerEntity> CompletableFuture<EntityType<T>> createYuunaPlayerBuilderAsync(Class<T> clz) {
         ResourceLocation id = YuunaLivePlayerEntity.getIdentifier(clz);
-        EntityType.EntityFactory<T> builder = (type, world) -> {
+        EntityType.EntityFactory<T> factory = (type, world) -> {
             try {
                 Constructor<?> ctor = clz.getDeclaredConstructor(EntityType.class, Level.class);
                 ctor.setAccessible(true);
@@ -74,16 +96,18 @@ public final class ModEntityType {
             }
         };
 
-        YuunaLive.logger.info("Registering entity: " + clz.getName());
-        EntityType<T> type = register(clz, id, YuunaLivePlayerEntity.getType(builder));
+        YuunaLive.logger.info("Scheduled for registering entity: " + clz.getName());
+        EntityType.Builder<T> builder = YuunaLivePlayerEntity.createBuilder(factory);
+        return registerByBuilderAsync(clz, id, builder, type -> {
+            YuunaLive.logger.info("Entity class " + clz.getName() + " has been registered!");
 
-        Platform platform = YuunaLive.getPlatform();
-        platform.registerDefaultAttribute(type, YuunaLivePlayerEntity.createPlayerAttributes());
+            Platform platform = PlatformManager.getPlatform();
+            platform.registerDefaultAttribute(type, YuunaLivePlayerEntity.createPlayerAttributes());
 
-        if (platform.isClient()) {
-            registerClientRenderer(clz, type);
-        }
-        return type;
+            if (platform.isClient()) {
+                registerClientRenderer(clz, type);
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -95,11 +119,14 @@ public final class ModEntityType {
         platform.registerEntityRenderer(type, YuunaLivePlayerEntity.isSlim(clz) ? slim : normal);
     }
 
-    private static <T extends Entity> EntityType<T> register(Class<T> clz, ResourceLocation id, EntityType<T> type) {
-        EntityType<T> result = Registry.register(Registry.ENTITY_TYPE, id, type);
-        clzTypeMap.put(clz, type);
-        typeClzMap.put(type, clz);
-        return result;
+    private static <T extends Entity> CompletableFuture<EntityType<T>> registerByBuilderAsync(Class<T> clz, ResourceLocation id, EntityType.Builder<T> builder, Consumer<EntityType<T>> callback) {
+        Platform platform = YuunaLive.getPlatform();
+        return platform.registerEntityTypeAsync(id, builder).thenApply(type -> {
+            clzTypeMap.put(clz, type);
+            typeClzMap.put(type, clz);
+            callback.accept(type);
+            return type;
+        });
     }
 
     public static void load() {}

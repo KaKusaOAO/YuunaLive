@@ -13,8 +13,10 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRe
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.mixin.object.builder.DefaultAttributeRegistryMixin;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,9 +24,12 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class YuunaLiveFabric implements ModInitializer, Platform {
@@ -35,6 +40,10 @@ public class YuunaLiveFabric implements ModInitializer, Platform {
 
     @Override
     public void onInitialize() {
+        // We don't care about registering data fixers for our entities, so
+        // we will just stop Minecraft from checking the data fixer schema.
+        SharedConstants.CHECK_DATA_FIXER_SCHEMA = false;
+
         PlatformManager.setPlatform(this);
         YuunaLive.init();
     }
@@ -60,5 +69,19 @@ public class YuunaLiveFabric implements ModInitializer, Platform {
     @Override
     public <T extends Entity> void registerEntityRenderer(EntityType<T> type, EntityRendererProvider<T> rendererProvider) {
         EntityRendererRegistry.register(type, rendererProvider);
+    }
+
+    @Override
+    public <T extends Entity> CompletableFuture<EntityType<T>> registerEntityTypeAsync(ResourceLocation id, EntityType.Builder<T> builder) {
+        CompletableFuture<EntityType<T>> future = new CompletableFuture<>();
+        future.complete(Registry.register(Registry.ENTITY_TYPE, id, builder.build(id.toString())));
+        return future;
+    }
+
+    @Override
+    public <T extends Item> CompletableFuture<T> registerItemAsync(ResourceLocation id, T item) {
+        CompletableFuture<T> future = new CompletableFuture<>();
+        future.complete(Registry.register(Registry.ITEM, id, item));
+        return future;
     }
 }

@@ -1,5 +1,6 @@
 package com.kakaouo.mods.yuunalive.util;
 
+import com.kakaouo.mods.yuunalive.YuunaLive;
 import net.minecraft.core.Holder;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.Biome;
@@ -22,7 +23,10 @@ public enum KakaUtils {
 
     public static Set<Class<?>> getClassesOfPackage(Package p) {
         InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream(p.getName().replaceAll("[.]", "/"));
-        if(stream == null) return new HashSet<>();
+        if(stream == null) {
+            YuunaLive.logger.warn("Cannot load the classes list from the package " + p + "!");
+            return new HashSet<>();
+        }
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         return reader.lines()
