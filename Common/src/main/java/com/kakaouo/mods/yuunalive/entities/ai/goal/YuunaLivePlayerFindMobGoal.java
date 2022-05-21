@@ -1,11 +1,12 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.goal.Goal;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Predicate;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.ai.goal.Goal;
 
 public class YuunaLivePlayerFindMobGoal extends Goal {
     private final YuunaLivePlayerEntity entity;

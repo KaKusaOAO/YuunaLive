@@ -1,16 +1,16 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import java.util.EnumSet;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+
+import java.util.EnumSet;
 
 public class YuunaLivePlayerMeleeAttackGoal extends MeleeAttackGoal {
     private final YuunaLivePlayerEntity entity;

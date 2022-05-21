@@ -1,14 +1,15 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.function.Predicate;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.function.Predicate;
 
 public class YuunaLivePlayerPickupItemGoal extends Goal {
     private YuunaLivePlayerEntity entity;

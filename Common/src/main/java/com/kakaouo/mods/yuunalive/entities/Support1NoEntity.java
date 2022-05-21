@@ -1,7 +1,6 @@
 package com.kakaouo.mods.yuunalive.entities;
 
 import com.kakaouo.mods.yuunalive.annotations.PlayerName;
-import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
 import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
 import com.kakaouo.mods.yuunalive.annotations.SpawnEggColor;
 import com.kakaouo.mods.yuunalive.util.KakaUtils;
@@ -14,7 +13,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.phys.Vec3;
 
 @PlayerSkin(value = "textures/entities/1no/1.png", slim = true)
 @PlayerName("Support1NO")

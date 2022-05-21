@@ -1,10 +1,11 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.Travellable;
-import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
+
+import java.util.EnumSet;
 
 public class YuunaLivePlayerTravelGoal<T extends Mob & Travellable> extends Goal {
     private final T entity;

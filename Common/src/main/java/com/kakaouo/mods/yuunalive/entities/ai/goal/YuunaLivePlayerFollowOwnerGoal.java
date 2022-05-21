@@ -2,7 +2,6 @@ package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaEntity;
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -12,6 +11,8 @@ import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
+
+import java.util.EnumSet;
 
 public class YuunaLivePlayerFollowOwnerGoal extends Goal {
     public static final int field_30205 = 12;

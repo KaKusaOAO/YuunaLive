@@ -4,6 +4,7 @@ import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
 import mcp.mobius.waila.api.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.TextComponent;
+
 import java.util.UUID;
 
 public class YuunaLivePlayerEntityComponentProvider implements IEntityComponentProvider {

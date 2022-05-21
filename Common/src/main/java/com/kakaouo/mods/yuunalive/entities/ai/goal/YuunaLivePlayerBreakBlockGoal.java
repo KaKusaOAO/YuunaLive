@@ -1,7 +1,6 @@
 package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.item.BlockItem;
@@ -9,6 +8,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.function.Predicate;
 
 public class YuunaLivePlayerBreakBlockGoal extends MoveToBlockGoal {
     private final YuunaLivePlayerEntity entity;

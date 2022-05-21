@@ -2,10 +2,11 @@ package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaEntity;
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import java.util.EnumSet;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+
+import java.util.EnumSet;
 
 public class YuunaLivePlayerTrackOwnerAttackerGoal extends TargetGoal {
     private final YuunaLivePlayerEntity entity;

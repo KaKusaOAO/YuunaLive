@@ -2,7 +2,6 @@ package com.kakaouo.mods.yuunalive.entities.ai.goal;
 
 import com.kakaouo.mods.yuunalive.entities.YuunaEntity;
 import com.kakaouo.mods.yuunalive.entities.YuunaLivePlayerEntity;
-import java.util.List;
 import net.minecraft.world.entity.ai.goal.Goal;
 
 public class YuunaLivePlayerFindOwnerGoal extends Goal {

@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+
 import java.util.Random;
 
 public abstract class YuunaLivePlayerStuckObjectsFeatureRenderer<M extends YuunaLivePlayerEntityModel>
