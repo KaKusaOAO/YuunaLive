@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "yuunalive",
+  "version": "${version}",
+  "name": "YuunaLive",
+  "description": "",
+  "authors": [
+    "Kaka"
+  ],
+  "contact": {
+    "sources": "https://github.com/KaKusaOAO/YuunaLive"
+  },
+  "license": "MIT",
+  "icon": "assets/yuunalive/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.kakaouo.mods.yuunalive.fabric.YuunaLiveFabricClient"
+    ],
+    "main": [
+      "com.kakaouo.mods.yuunalive.fabric.YuunaLiveFabric"
+    ]
+  },
+  "mixins": [
+    "YuunaLive.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric": "*",
+    "minecraft": ">=1.18.2"
+  },
+  "custom": {
+    "waila:plugins": {
+      "id": "yuunalive:waila_plugin",
+      "initializer": "com.kakaouo.mods.yuunalive.waila.YuunaLiveWailaPlugin"
+    }
+  }
+}
