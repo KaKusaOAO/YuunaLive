@@ -107,10 +107,6 @@ public class YuunaLiveForge implements Platform {
         return "Forge";
     }
 
-    private static Boolean alwaysTrue() {
-        return Boolean.TRUE;
-    }
-
     @Override
     public boolean isClient() {
         return FMLLoader.getDist().isClient();
