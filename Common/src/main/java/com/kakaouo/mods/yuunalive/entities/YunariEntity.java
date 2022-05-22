@@ -11,7 +11,7 @@ import net.minecraft.world.level.Level;
 @PlayerSkin("textures/entities/yunari/1.png")
 @PlayerName("yunari930")
 @PlayerNickname("洛娜")
-@SpawnEggColor(primary = 0x5656e6, secondary = 0x242487)
+@SpawnEggColor(primary = 0x3540d6, secondary = 0x172d4c)
 public class YunariEntity extends YuunaLivePlayerEntity {
 
     protected YunariEntity(EntityType<YunariEntity> entityType, Level world) {

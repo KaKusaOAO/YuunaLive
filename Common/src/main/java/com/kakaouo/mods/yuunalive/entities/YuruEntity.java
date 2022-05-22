@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-@PlayerSkin(value = "textures/entities/yuru/2.png", slim = true)
+@PlayerSkin(value = "textures/entities/yuru/3.png", slim = true)
 @PlayerName("Yuru7560_TW")
 @PlayerNickname("優儒")
 @SpawnEggColor(primary = 0xffd7f0, secondary = 0xffa6be)

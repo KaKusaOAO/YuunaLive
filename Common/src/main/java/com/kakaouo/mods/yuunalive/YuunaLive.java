@@ -17,7 +17,15 @@ import org.apache.logging.log4j.Logger;
 public final class YuunaLive {
     private YuunaLive() {}
 
+    /**
+     * YuunaLive 模組預設使用的命名空間。
+     */
     public static final String NAMESPACE = "yuunalive";
+
+    /**
+     * YuunaLive 模組預設使用的 {@link Logger}，各平台實作可以自訂一份新的
+     * {@link Logger} 以和 Common 區分。
+     */
     public static final Logger logger = LogManager.getLogger("YuunaLive");
     public static ResourceLocation id(String path) {
         return new ResourceLocation(NAMESPACE, path);

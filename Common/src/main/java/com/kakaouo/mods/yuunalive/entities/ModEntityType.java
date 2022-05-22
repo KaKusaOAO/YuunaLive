@@ -42,6 +42,10 @@ public final class ModEntityType {
         untilAllRegistered = CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0]));
     }
 
+    /**
+     * 等待所有的 YuunaLive 生物登錄完畢。
+     * @return 一個登錄完畢後會完成的 {@link CompletableFuture} 物件。
+     */
     public static CompletableFuture<Void> waitUntilAllRegisteredAsync() {
         if (untilAllRegistered.isDone()) return CompletableFuture.completedFuture(null);
         return untilAllRegistered;
@@ -55,6 +59,10 @@ public final class ModEntityType {
         return typeClzMap.get(type);
     }
 
+    /**
+     * 取得所有已經登錄好的 {@link YuunaLivePlayerEntity} 生物類型。
+     * @return 所有已經登錄好的 {@link YuunaLivePlayerEntity} 生物類型
+     */
     @SuppressWarnings("unchecked")
     public static Set<EntityType<? extends YuunaLivePlayerEntity>> getYuunaLivePlayerEntityTypes() {
         return clzTypeMap.keySet().stream()
@@ -63,24 +71,37 @@ public final class ModEntityType {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * 自動搜尋所有繼承 {@link YuunaLivePlayerEntity} 的類別並分別登錄為新的生物。
+     * 若該類別有定義 {@code static boolean shouldBeExcluded()} 並回傳
+     * {@code false}，則該類別不會被登錄為新的生物。
+     */
     @SuppressWarnings("unchecked")
     private static void registerAllByReflection() {
         YuunaLive.logger.info("Looking for entity classes...");
         for(Class<?> clz : KakaUtils.getClassesOfPackage(ModEntityType.class.getPackage())) {
             if(YuunaLivePlayerEntity.class.isAssignableFrom(clz) && !clz.equals(YuunaLivePlayerEntity.class)) {
                 Class<? extends YuunaLivePlayerEntity> c = (Class<? extends YuunaLivePlayerEntity>) clz;
+                boolean exclude = false;
                 try {
-                    if (!(boolean) c.getDeclaredMethod("shouldBeExcluded").invoke(null)) {
-                        createYuunaPlayerBuilderAsync(c);
+                    if ((boolean) c.getDeclaredMethod("shouldBeExcluded").invoke(null)) {
+                        exclude = true;
                     }
                 } catch(NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
-                    createYuunaPlayerBuilderAsync(c);
+                    //
                 }
+                if (!exclude) createYuunaPlayerBuilderAsync(c);
             }
         }
         YuunaLive.logger.info("Registered " + clzTypeMap.size() + " entities.");
     }
 
+    /**
+     * 登錄一個繼承 {@link YuunaLivePlayerEntity} 的類別為新的生物。
+     * @param clz 該繼承 {@link YuunaLivePlayerEntity} 的類別
+     * @param <T> 該繼承 {@link YuunaLivePlayerEntity} 的類別
+     * @return 一個 {@link CompletableFuture} 物件，之後可以從它取得登錄好的實體類型 {@link EntityType}
+     */
     @SuppressWarnings("unchecked")
     private static <T extends YuunaLivePlayerEntity> CompletableFuture<EntityType<T>> createYuunaPlayerBuilderAsync(Class<T> clz) {
         ResourceLocation id = YuunaLivePlayerEntity.getIdentifier(clz);
@@ -97,7 +118,7 @@ public final class ModEntityType {
 
         YuunaLive.logger.info("Scheduled for registering entity: " + clz.getName());
         EntityType.Builder<T> builder = YuunaLivePlayerEntity.createBuilder(factory);
-        return registerByBuilderAsync(clz, id, builder, type -> {
+        return registerByBuilderAsync(clz, id, builder).thenApply(type -> {
             YuunaLive.logger.info("Entity class " + clz.getName() + " has been registered!");
 
             Platform platform = PlatformManager.getPlatform();
@@ -106,9 +127,16 @@ public final class ModEntityType {
             if (platform.isClient()) {
                 registerClientRenderer(clz, type);
             }
+            return type;
         });
     }
 
+    /**
+     * 為新的 {@link YuunaLivePlayerEntity} 實體登錄對應的 renderer。
+     * @param clz 該繼承 {@link YuunaLivePlayerEntity} 的類別
+     * @param type 該實體對應到的 {@link EntityType} 類型
+     * @param <T> 該繼承 {@link YuunaLivePlayerEntity} 的類別
+     */
     @SuppressWarnings("unchecked")
     private static <T extends YuunaLivePlayerEntity> void registerClientRenderer(Class<T> clz, EntityType<T> type) {
         EntityRendererProvider<T> normal = ctx -> (EntityRenderer<T>) new YuunaLivePlayerEntityRenderer(ctx, false);
@@ -118,15 +146,25 @@ public final class ModEntityType {
         platform.registerEntityRenderer(type, YuunaLivePlayerEntity.isSlim(clz) ? slim : normal);
     }
 
-    private static <T extends Entity> CompletableFuture<EntityType<T>> registerByBuilderAsync(Class<T> clz, ResourceLocation id, EntityType.Builder<T> builder, Consumer<EntityType<T>> callback) {
+    /**
+     * 透過一個已經設定好的 {@link EntityType.Builder} 登錄一個繼承 {@link YuunaLivePlayerEntity} 的類別為新的生物。
+     * @param clz 該繼承 {@link YuunaLivePlayerEntity} 的類別
+     * @param id 該實體類型對應到的 ID
+     * @param builder 用來建立該實體類型的 {@link EntityType.Builder}
+     * @param <T> 該繼承 {@link YuunaLivePlayerEntity} 的類別
+     * @return
+     */
+    private static <T extends YuunaLivePlayerEntity> CompletableFuture<EntityType<T>> registerByBuilderAsync(Class<T> clz, ResourceLocation id, EntityType.Builder<T> builder) {
         Platform platform = YuunaLive.getPlatform();
         return platform.registerEntityTypeAsync(id, builder).thenApply(type -> {
             clzTypeMap.put(clz, type);
             typeClzMap.put(type, clz);
-            callback.accept(type);
             return type;
         });
     }
 
+    /**
+     * 開始載入並登錄 YuunaLive 的實體。
+     */
     public static void load() {}
 }
