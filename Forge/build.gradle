@@ -78,7 +78,8 @@ dependencies {
     compileOnly project(":Common")
 
     // WTHIT
-    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-${wthit_version}")
+    compileOnly "mcp.mobius.waila:wthit-api:mojmap-${wthit_version}"
+    compileOnly "mcp.mobius.waila:wthit-api:forge-${wthit_version}"
     runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-${wthit_version}")
     runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.1.2") // ?
 }

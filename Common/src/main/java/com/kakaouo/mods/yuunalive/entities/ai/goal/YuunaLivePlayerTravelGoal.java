@@ -32,6 +32,14 @@ public class YuunaLivePlayerTravelGoal<T extends Mob & Travellable> extends Goal
         if (--this.updateCountdownTicks <= 0) {
             this.updateCountdownTicks = 400;
             BlockPos target = entity.getTravelTarget();
+            double distance = target.distSqr(entity.blockPosition());
+            if (distance < 16) {
+                BlockPos delta = target.mutable().subtract(entity.blockPosition());
+                double x = delta.getX() / distance * 16;
+                double y = delta.getY() / distance * 16;
+                double z = delta.getZ() / distance * 16;
+                target = entity.blockPosition().mutable().offset(x, y, z);
+            }
             entity.getNavigation().moveTo(target.getX(), target.getY(), target.getZ(), 1);
 
             BlockPos.MutableBlockPos curr = entity.blockPosition().mutable();

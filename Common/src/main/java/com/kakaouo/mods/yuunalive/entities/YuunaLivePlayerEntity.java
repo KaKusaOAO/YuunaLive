@@ -8,6 +8,7 @@ import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.*;
@@ -40,6 +41,7 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.loot.LootTables;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Locale;
@@ -91,6 +93,8 @@ public abstract class YuunaLivePlayerEntity extends PathfinderMob implements Ran
             ));
         }
 
+        LootTableProvider
+
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
         this.targetSelector.addGoal(2, new HurtByTargetGoal(this, this.getClass()).setAlertOthers(ZombifiedPiglin.class));
         this.targetSelector.addGoal(1, new YuunaLivePlayerPickupItemGoal(this));
@@ -107,6 +111,10 @@ public abstract class YuunaLivePlayerEntity extends PathfinderMob implements Ran
     }
 
     public boolean canAttack(LivingEntity entity) {
+        if (!entity.canBeSeenAsEnemy()) return false;
+        if (entity.isSpectator()) return false;
+        if (!entity.canBeSeenByAnyone()) return false;
+
         return getAttackScore(entity) >= 0;
     }
 

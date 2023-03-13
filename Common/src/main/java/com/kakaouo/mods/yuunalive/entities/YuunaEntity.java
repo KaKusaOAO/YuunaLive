@@ -23,6 +23,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
@@ -45,6 +46,9 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
         super.initCustomGoals();
         this.goalSelector.addGoal(14, new YuunaLivePlayerTravelGoal<>(this));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Monster.class, 0,
+                false, false, this::canAttack
+        ));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Raider.class, 0,
                 false, false, this::canAttack
         ));
     }
@@ -72,7 +76,7 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
     @Override
     public void killed(ServerLevel world, LivingEntity other) {
         super.killed(world, other);
-        var effect = new MobEffectInstance(MobEffects.REGENERATION, 200, 1, false, true);
+        var effect = new MobEffectInstance(MobEffects.REGENERATION, 200, 2, false, true);
         addEffect(effect);
     }
 
@@ -120,7 +124,6 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
 
     public List<ResourceLocation> getAvailableStructureTypes() {
         var result = new ArrayList<ResourceLocation>();
-        result.add(new ResourceLocation("village"));
         result.add(new ResourceLocation("mansion"));
         result.add(new ResourceLocation("swamp_hut"));
         result.add(new ResourceLocation("pillager_outpost"));

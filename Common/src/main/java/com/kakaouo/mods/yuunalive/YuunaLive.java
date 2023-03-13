@@ -45,8 +45,7 @@ public final class YuunaLive {
         YuunaLive.hostPlatform = platform;
         logger.info("YuunaLive is running on {}.", platform.getPlatformName());
 
-        ModEntityType.load();
-        ModEntityType.waitUntilAllRegisteredAsync().thenAccept(v -> {
+        ModEntityType.registerAllAsync().thenRun(() -> {
             logger.info("Registering spawn eggs and biome modifications...");
             for(EntityType<? extends Mob> type : ModEntityType.getYuunaLivePlayerEntityTypes()) {
                 ResourceLocation id = Registry.ENTITY_TYPE.getKey(type);

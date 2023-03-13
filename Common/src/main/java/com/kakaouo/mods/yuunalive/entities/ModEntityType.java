@@ -16,7 +16,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public final class ModEntityType {
@@ -25,29 +24,14 @@ public final class ModEntityType {
     private static CompletableFuture<Void> untilAllRegistered;
 
     static {
-        // registerAllByReflection();
-        List<Class<? extends YuunaLivePlayerEntity>> classes = new ArrayList<>();
-        classes.add(GinaChenEntity.class);
-        classes.add(KakaEntity.class);
-        classes.add(KiuryilEntity.class);
-        classes.add(YunariEntity.class);
-        classes.add(YuruEntity.class);
-        classes.add(YuunaEntity.class);
-
-        List<CompletableFuture<?>> futures = new ArrayList<>();
-        for (Class<? extends YuunaLivePlayerEntity> clz : classes) {
-            futures.add(createYuunaPlayerBuilderAsync(clz));
-        }
-
-        untilAllRegistered = CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0]));
+        untilAllRegistered = registerAllByReflectionAsync();
     }
 
     /**
      * 等待所有的 YuunaLive 生物登錄完畢。
      * @return 一個登錄完畢後會完成的 {@link CompletableFuture} 物件。
      */
-    public static CompletableFuture<Void> waitUntilAllRegisteredAsync() {
-        if (untilAllRegistered.isDone()) return CompletableFuture.completedFuture(null);
+    public static CompletableFuture<Void> registerAllAsync() {
         return untilAllRegistered;
     }
 
@@ -75,10 +59,12 @@ public final class ModEntityType {
      * 自動搜尋所有繼承 {@link YuunaLivePlayerEntity} 的類別並分別登錄為新的生物。
      * 若該類別有定義 {@code static boolean shouldBeExcluded()} 並回傳
      * {@code false}，則該類別不會被登錄為新的生物。
+     * @return 一個登錄完畢後會完成的 {@link CompletableFuture} 物件。
      */
     @SuppressWarnings("unchecked")
-    private static void registerAllByReflection() {
+    private static CompletableFuture<Void> registerAllByReflectionAsync() {
         YuunaLive.logger.info("Looking for entity classes...");
+        List<CompletableFuture<?>> futures = new ArrayList<>();
         for(Class<?> clz : KakaUtils.getClassesOfPackage(ModEntityType.class.getPackage())) {
             if(YuunaLivePlayerEntity.class.isAssignableFrom(clz) && !clz.equals(YuunaLivePlayerEntity.class)) {
                 Class<? extends YuunaLivePlayerEntity> c = (Class<? extends YuunaLivePlayerEntity>) clz;
@@ -90,10 +76,13 @@ public final class ModEntityType {
                 } catch(NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
                     //
                 }
-                if (!exclude) createYuunaPlayerBuilderAsync(c);
+                if (!exclude) {
+                    futures.add(createYuunaPlayerBuilderAsync(c));
+                }
             }
         }
-        YuunaLive.logger.info("Registered " + clzTypeMap.size() + " entities.");
+        YuunaLive.logger.info("Scheduled " +  futures.size() + " entity registrations.");
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0]));
     }
 
     /**

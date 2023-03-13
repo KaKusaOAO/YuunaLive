@@ -22,6 +22,7 @@
     ]
   },
   "mixins": [
+    "yuunalive.mixins.json",
     "yuunalive.fabric.mixins.json"
   ],
   "depends": {

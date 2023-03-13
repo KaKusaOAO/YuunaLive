@@ -56,13 +56,7 @@ public interface Platform {
      */
     <T extends Entity> void registerEntityRenderer(EntityType<T> type, EntityRendererProvider<T> rendererProvider);
 
-    /**
-     * 登錄新的實體類型。
-     * @param id 該實體類型對應到的 ID
-     * @param builder 用來建立該實體類型的 {@link EntityType.Builder}
-     * @param <T> 該實體的 class
-     * @return 一個 {@link CompletableFuture} 物件，之後可以從它取得登錄好的實體類型 {@link EntityType}
-     */
+
     <T extends Entity> CompletableFuture<EntityType<T>> registerEntityTypeAsync(ResourceLocation id, EntityType.Builder<T> builder);
 
     /**
