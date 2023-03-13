@@ -6,11 +6,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HeadedModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,8 +24,11 @@ public class YuunaLivePlayerHeldItemFeatureRenderer<M extends YuunaLivePlayerEnt
     private static final float HEAD_YAW = -0.5235988f;
     private static final float HEAD_ROLL = 1.5707964f;
 
-    public YuunaLivePlayerHeldItemFeatureRenderer(RenderLayerParent<YuunaLivePlayerEntity, M> featureRendererContext) {
-        super(featureRendererContext);
+    private final ItemInHandRenderer itemInHandRenderer;
+
+    public YuunaLivePlayerHeldItemFeatureRenderer(RenderLayerParent<YuunaLivePlayerEntity, M> context, ItemInHandRenderer renderer) {
+        super(context, renderer);
+        this.itemInHandRenderer = renderer;
     }
 
     @Override
@@ -39,13 +44,13 @@ public class YuunaLivePlayerHeldItemFeatureRenderer<M extends YuunaLivePlayerEnt
         matrices.pushPose();
         ModelPart modelPart = ((HeadedModel)this.getParentModel()).getHead();
         float f = modelPart.xRot;
-        modelPart.xRot = Mth.clamp(modelPart.xRot, -0.5235988f, 1.5707964f);
+        modelPart.xRot = Mth.clamp(modelPart.xRot, HEAD_YAW, HEAD_ROLL);
         modelPart.translateAndRotate(matrices);
         modelPart.xRot = f;
         CustomHeadLayer.translateToHead(matrices, false);
         boolean bl = arm == HumanoidArm.LEFT;
         matrices.translate((bl ? -2.5f : 2.5f) / 16.0f, -0.0625, 0.0);
-        Minecraft.getInstance().getItemInHandRenderer().renderItem(entity, stack, ItemTransforms.TransformType.HEAD, false, matrices, vertexConsumers, light);
+        this.itemInHandRenderer.renderItem(entity, stack, ItemTransforms.TransformType.HEAD, false, matrices, vertexConsumers, light);
         matrices.popPose();
     }
 }

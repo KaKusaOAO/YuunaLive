@@ -24,7 +24,7 @@ public class YuunaLivePlayerEntityRenderer extends HumanoidMobRenderer<YuunaLive
                 new HumanoidModel<>(ctx.bakeLayer(slim ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)),
                 new HumanoidModel<>(ctx.bakeLayer(slim ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR))
         ));
-        this.addLayer(new YuunaLivePlayerHeldItemFeatureRenderer<>(this));
+        this.addLayer(new YuunaLivePlayerHeldItemFeatureRenderer<>(this, ctx.getItemInHandRenderer()));
         this.addLayer(new YuunaLivePlayerStuckArrowsFeatureRenderer<>(ctx, this));
         this.addLayer(new YuunaLivePlayerCapeFeatureRenderer(this));
 

@@ -1,6 +1,7 @@
 package com.kakaouo.mods.yuunalive;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -38,7 +39,7 @@ public interface Platform {
      * @param data 這個實體重生的細節設定 (權重、最小數量、最大數量?)
      * @param <T> 該實體的 class
      */
-    <T extends Entity> void registerSpawn(Predicate<Biome> predicate, EntityType<T> type, MobCategory category, MobSpawnSettings.SpawnerData data);
+    <T extends Entity> void registerSpawn(Predicate<Holder<Biome>> predicate, EntityType<T> type, MobCategory category, MobSpawnSettings.SpawnerData data);
 
     /**
      * 為新的生物登錄預設的屬性 (attribute)。

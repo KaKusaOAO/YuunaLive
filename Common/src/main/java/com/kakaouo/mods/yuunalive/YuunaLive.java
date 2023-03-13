@@ -26,10 +26,12 @@ public final class YuunaLive {
      * YuunaLive 模組預設使用的 {@link Logger}，各平台實作可以自訂一份新的
      * {@link Logger} 以和 Common 區分。
      */
-    public static final Logger logger = LogManager.getLogger("YuunaLive");
-    public static ResourceLocation id(String path) {
+    public static final Logger LOGGER = LogManager.getLogger("YuunaLive");
+
+    public static ResourceLocation createId(String path) {
         return new ResourceLocation(NAMESPACE, path);
     }
+
     private static Platform hostPlatform;
 
     public static Platform getPlatform() {
@@ -42,14 +44,15 @@ public final class YuunaLive {
         if (platform == null) {
             throw new UnsupportedOperationException("Platform is not initialized!");
         }
+
         YuunaLive.hostPlatform = platform;
-        logger.info("YuunaLive is running on {}.", platform.getPlatformName());
+        LOGGER.info("YuunaLive is running on {}.", platform.getPlatformName());
 
         ModEntityType.registerAllAsync().thenRun(() -> {
-            logger.info("Registering spawn eggs and biome modifications...");
+            LOGGER.info("Registering spawn eggs and biome modifications...");
             for(EntityType<? extends Mob> type : ModEntityType.getYuunaLivePlayerEntityTypes()) {
                 ResourceLocation id = Registry.ENTITY_TYPE.getKey(type);
-                ResourceLocation itemId = id("spawn_egg_" + id.getPath());
+                ResourceLocation itemId = createId("spawn_egg_" + id.getPath());
 
                 // Default colors for our entities
                 int primary = 0xffffff;

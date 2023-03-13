@@ -1,0 +1,6 @@
+{
+  "yuunalive:main": {
+    "initializer": "com.kakaouo.mods.yuunalive.waila.YuunaLiveWailaPlugin",
+    "side": "*"
+  }
+}

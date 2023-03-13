@@ -8,8 +8,11 @@ import com.kakaouo.mods.yuunalive.forge.utils.ForgeHelper;
 import com.kakaouo.mods.yuunalive.forge.utils.MobAttributesEntry;
 import com.kakaouo.mods.yuunalive.forge.utils.MobSpawnEntry;
 import com.kakaouo.mods.yuunalive.util.EntityRegisterEntry;
+import com.kakaouo.mods.yuunalive.util.RegisterEntry;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -19,16 +22,15 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.common.world.BiomeModifier;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegisterEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,53 +52,50 @@ public class YuunaLiveForge implements Platform {
         YuunaLive.init();
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modEventBus.addGenericListener(EntityType.class, this::onRegisterEntityTypes);
-        modEventBus.addGenericListener(Item.class, this::onRegisterItems);
+        modEventBus.addListener(this::onRegister);
         modEventBus.addListener(this::onEntityAttributeCreation);
 
-        IEventBus mainEventBus = MinecraftForge.EVENT_BUS;
-        mainEventBus.addListener(this::onBiomeLoad);
+        ForgeBiomeModifier.load(mobSpawnEntries);
+        ForgeBiomeModifier.BIOME_MODIFIER_SERIALIZERS.register(modEventBus);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void onRegisterEntityTypes(RegistryEvent.Register<EntityType<?>> event) {
+    public void onRegister(RegisterEvent event) {
+        if (event.getRegistryKey().equals(Registry.ENTITY_TYPE_REGISTRY)) {
+            this.registerEntityTypes(event);
+        }
+
+        if (event.getRegistryKey().equals(Registry.ITEM_REGISTRY)) {
+            this.registerItems(event);
+        }
+    }
+
+    private void registerEntityTypes(RegisterEvent event) {
         seenEntityTypeRegisterEvent = true;
+        YuunaLive.LOGGER.info("Registering entity types on Forge ...");
 
-        YuunaLive.logger.info("Registering entity types on Forge ...");
-        IForgeRegistry<EntityType<?>> registry = event.getRegistry();
-        for(EntityRegisterEntry<?> entry : ModRegistries.ENTITIES) {
-            ResourceLocation location = entry.location();
-            EntityType<?> type = entry.builder().build(location.getPath());
-            type.setRegistryName(location);
-            registry.register(type);
-            ((CompletableFuture) entry.callback()).complete(type);
+        for (EntityRegisterEntry<?> entry : ModRegistries.ENTITIES) {
+            this.registerEntityType(event, entry);
         }
     }
 
-    public void onRegisterItems(RegistryEvent.Register<Item> event) {
+    private <T extends Entity> void registerEntityType(RegisterEvent event, EntityRegisterEntry<T> entry) {
+        ResourceLocation location = entry.location();
+        EntityType<T> type = entry.builder().build(location.getPath());
+        event.register(Registry.ENTITY_TYPE_REGISTRY, location, () -> type);
+        entry.callback().complete(type);
+    }
+
+    private void registerItems(RegisterEvent event) {
         seenItemRegisterEvent = true;
+        YuunaLive.LOGGER.info("Registering items on Forge...");
 
-        YuunaLive.logger.info("Registering items on Forge...");
-        IForgeRegistry<Item> registry = event.getRegistry();
-        for(Item entry : ModRegistries.ITEMS) {
-            registry.register(entry);
-        }
-    }
-
-    public void onBiomeLoad(BiomeLoadingEvent event) {
-        ResourceLocation name = event.getName();
-        if (name == null) return;
-
-        var biome = ForgeRegistries.BIOMES.getValue(name);
-        for (MobSpawnEntry<?> entry : mobSpawnEntries) {
-            if (entry.predicate().test(biome)) {
-                event.getSpawns().addSpawn(entry.category(), entry.data());
-            }
+        for (RegisterEntry<Item> entry : ModRegistries.ITEMS) {
+            event.register(Registry.ITEM_REGISTRY, entry.location(), entry::object);
         }
     }
 
     public void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
-        YuunaLive.logger.info("Setting entity default attributes on Forge...");
+        YuunaLive.LOGGER.info("Setting entity default attributes on Forge...");
         for (MobAttributesEntry<?> entry : mobAttributesEntries) {
             event.put(entry.type(), entry.attributeSupplier());
         }
@@ -113,7 +112,7 @@ public class YuunaLiveForge implements Platform {
     }
 
     @Override
-    public <T extends Entity> void registerSpawn(Predicate<Biome> predicate, EntityType<T> type, MobCategory category, MobSpawnSettings.SpawnerData data) {
+    public <T extends Entity> void registerSpawn(Predicate<Holder<Biome>> predicate, EntityType<T> type, MobCategory category, MobSpawnSettings.SpawnerData data) {
         mobSpawnEntries.add(new MobSpawnEntry<>(predicate, type, category, data));
     }
 
@@ -134,24 +133,22 @@ public class YuunaLiveForge implements Platform {
             ModRegistries.ENTITIES.add(new EntityRegisterEntry<>(builder, id, future));
             return future;
         } else {
-            return ForgeHelper.registerAfterInitAsync(ForgeRegistries.ENTITIES, () -> builder.build(id.toString()));
+            return ForgeHelper.registerAfterInitAsync(ForgeRegistries.ENTITY_TYPES, id, () -> builder.build(id.toString()));
         }
     }
 
     @Override
     public <T extends Item> CompletableFuture<T> registerItemAsync(ResourceLocation id, T item) {
-        item.setRegistryName(id);
-
         if (!seenItemRegisterEvent) {
             CompletableFuture<T> future = new CompletableFuture<>();
-            ModRegistries.ITEMS.add(item);
+            ModRegistries.ITEMS.add(new RegisterEntry<>(id, item));
             return future;
         } else {
             try {
-                return ForgeHelper.registerAfterInitAsync(ForgeRegistries.ITEMS, () -> item);
+                return ForgeHelper.registerAfterInitAsync(ForgeRegistries.ITEMS, id, () -> item);
             } catch (Exception ex) {
-                YuunaLive.logger.error("Failed to register item: " + id);
-                YuunaLive.logger.error(ex);
+                YuunaLive.LOGGER.error("Failed to register item: " + id);
+                YuunaLive.LOGGER.error(ex);
                 return CompletableFuture.failedFuture(ex);
             }
         }

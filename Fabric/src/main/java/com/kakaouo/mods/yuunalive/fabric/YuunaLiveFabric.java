@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRe
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -48,9 +49,9 @@ public class YuunaLiveFabric implements ModInitializer, Platform {
     }
 
     @Override
-    public <T extends Entity> void registerSpawn(Predicate<Biome> predicate, EntityType<T> type, MobCategory category, MobSpawnSettings.SpawnerData data) {
+    public <T extends Entity> void registerSpawn(Predicate<Holder<Biome>> predicate, EntityType<T> type, MobCategory category, MobSpawnSettings.SpawnerData data) {
         BiomeModifications.create(Registry.ENTITY_TYPE.getKey(type))
-            .add(ModificationPhase.ADDITIONS, ctx -> predicate.test(ctx.getBiome()), ctx -> {
+            .add(ModificationPhase.ADDITIONS, ctx -> predicate.test(ctx.getBiomeRegistryEntry()), ctx -> {
                 ctx.getSpawnSettings().addSpawn(category, data);
             });
     }

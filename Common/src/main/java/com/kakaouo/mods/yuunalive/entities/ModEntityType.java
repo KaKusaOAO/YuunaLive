@@ -63,7 +63,7 @@ public final class ModEntityType {
      */
     @SuppressWarnings("unchecked")
     private static CompletableFuture<Void> registerAllByReflectionAsync() {
-        YuunaLive.logger.info("Looking for entity classes...");
+        YuunaLive.LOGGER.info("Looking for entity classes...");
         List<CompletableFuture<?>> futures = new ArrayList<>();
         for(Class<?> clz : KakaUtils.getClassesOfPackage(ModEntityType.class.getPackage())) {
             if(YuunaLivePlayerEntity.class.isAssignableFrom(clz) && !clz.equals(YuunaLivePlayerEntity.class)) {
@@ -81,7 +81,7 @@ public final class ModEntityType {
                 }
             }
         }
-        YuunaLive.logger.info("Scheduled " +  futures.size() + " entity registrations.");
+        YuunaLive.LOGGER.info("Scheduled " +  futures.size() + " entity registrations.");
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0]));
     }
 
@@ -100,15 +100,15 @@ public final class ModEntityType {
                 ctor.setAccessible(true);
                 return (T)ctor.newInstance(type, world);
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ex) {
-                YuunaLive.logger.error(ex);
+                YuunaLive.LOGGER.error(ex);
                 return null;
             }
         };
 
-        YuunaLive.logger.info("Scheduled for registering entity: " + clz.getName());
+        YuunaLive.LOGGER.info("Scheduled for registering entity: " + clz.getName());
         EntityType.Builder<T> builder = YuunaLivePlayerEntity.createBuilder(factory);
         return registerByBuilderAsync(clz, id, builder).thenApply(type -> {
-            YuunaLive.logger.info("Entity class " + clz.getName() + " has been registered!");
+            YuunaLive.LOGGER.info("Entity class " + clz.getName() + " has been registered!");
 
             Platform platform = PlatformManager.getPlatform();
             platform.registerDefaultAttribute(type, YuunaLivePlayerEntity.createPlayerAttributes());

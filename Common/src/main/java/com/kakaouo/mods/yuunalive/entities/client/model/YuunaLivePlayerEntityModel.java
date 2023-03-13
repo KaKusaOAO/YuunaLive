@@ -15,6 +15,7 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 
@@ -176,7 +177,7 @@ public class YuunaLivePlayerEntityModel extends HumanoidModel<YuunaLivePlayerEnt
         }
     }
 
-    public ModelPart getRandomPart(Random random) {
+    public ModelPart getRandomPart(RandomSource random) {
         return this.parts.get(random.nextInt(this.parts.size()));
     }
 }

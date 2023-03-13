@@ -2,6 +2,7 @@ package com.kakaouo.mods.yuunalive.util;
 
 import com.kakaouo.mods.yuunalive.YuunaLive;
 import net.minecraft.core.Holder;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec3;
@@ -16,16 +17,14 @@ import java.util.stream.Collectors;
 public enum KakaUtils {
     ;
 
-    @SuppressWarnings("deprecation")
-    public static boolean isNotOceanBiome(Biome biome) {
-        // FIXME: getBiomeCategory() is deprecated
-        return Biome.getBiomeCategory(Holder.direct(biome)) != Biome.BiomeCategory.OCEAN;
+    public static boolean isNotOceanBiome(Holder<Biome> biome) {
+        return !biome.is(BiomeTags.IS_OCEAN);
     }
 
     public static Set<Class<?>> getClassesOfPackage(Package p) {
         InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream(p.getName().replaceAll("[.]", "/"));
         if(stream == null) {
-            YuunaLive.logger.warn("Cannot load the classes list from the package " + p + "!");
+            YuunaLive.LOGGER.warn("Cannot load the classes list from the package " + p + "!");
             return new HashSet<>();
         }
 

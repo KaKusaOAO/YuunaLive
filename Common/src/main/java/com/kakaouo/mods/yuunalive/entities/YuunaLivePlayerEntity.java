@@ -6,9 +6,9 @@ import com.kakaouo.mods.yuunalive.annotations.PlayerName;
 import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
 import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.*;
+import com.kakaouo.mods.yuunalive.util.Texts;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
-import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.*;
@@ -28,6 +28,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.animal.Chicken;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -41,7 +42,6 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.loot.LootTables;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Locale;
@@ -92,8 +92,6 @@ public abstract class YuunaLivePlayerEntity extends PathfinderMob implements Ran
                     false, false, this::canAttack
             ));
         }
-
-        LootTableProvider
 
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
         this.targetSelector.addGoal(2, new HurtByTargetGoal(this, this.getClass()).setAlertOthers(ZombifiedPiglin.class));
@@ -181,7 +179,7 @@ public abstract class YuunaLivePlayerEntity extends PathfinderMob implements Ran
 
     public static <T extends YuunaLivePlayerEntity> ResourceLocation getTexture(Class<T> clz) {
         PlayerSkin name = clz.getAnnotation(PlayerSkin.class);
-        if(name != null) return YuunaLive.id(name.value());
+        if(name != null) return YuunaLive.createId(name.value());
         return null;
     }
 
@@ -204,7 +202,7 @@ public abstract class YuunaLivePlayerEntity extends PathfinderMob implements Ran
     }
 
     public static <T extends YuunaLivePlayerEntity> ResourceLocation getIdentifier(Class<T> clz) {
-        return YuunaLive.id(getPlayerName(clz).toLowerCase(Locale.ROOT));
+        return YuunaLive.createId(getPlayerName(clz).toLowerCase(Locale.ROOT));
     }
 
     public boolean isAttractedByYuuna() {
@@ -217,12 +215,12 @@ public abstract class YuunaLivePlayerEntity extends PathfinderMob implements Ran
 
     @Override
     public Component getName() {
-        MutableComponent playerName = new TextComponent(getPlayerName());
+        MutableComponent playerName = Texts.literal(getPlayerName());
         String nickname = getNickName();
-        MutableComponent nickTag = new TextComponent("");
+        MutableComponent nickTag = Texts.literal("");
 
         if(nickname != null) {
-            MutableComponent nickName = new TextComponent(getNickName());
+            MutableComponent nickName = Texts.literal(getNickName());
             nickName.setStyle(nickName.getStyle().withColor(getNickNameColor()));
 
             if(this instanceof YuunaEntity) {
@@ -230,7 +228,7 @@ public abstract class YuunaLivePlayerEntity extends PathfinderMob implements Ran
                 nickName.withStyle(ChatFormatting.BOLD);
             }
 
-            nickTag = nickTag.append(new TranslatableComponent("[%s] ", nickName).withStyle(ChatFormatting.GREEN));
+            nickTag = nickTag.append(Texts.translatable("[%s] ", nickName).withStyle(ChatFormatting.GREEN));
         }
 
         return nickTag.append(playerName);
@@ -314,11 +312,6 @@ public abstract class YuunaLivePlayerEntity extends PathfinderMob implements Ran
     @Override
     public boolean isEffectiveAi() {
         return super.isEffectiveAi() && !isPanicking();
-    }
-
-    @Override
-    public boolean canBeControlledByRider() {
-        return false;
     }
 
     public void updateAttackType() {
@@ -646,6 +639,6 @@ public abstract class YuunaLivePlayerEntity extends PathfinderMob implements Ran
     public static <T extends YuunaLivePlayerEntity> ResourceLocation getCapeTexture(Class<T> clz) {
         PlayerCape cape = clz.getAnnotation(PlayerCape.class);
         if(cape == null) return null;
-        return YuunaLive.id(cape.value());
+        return YuunaLive.createId(cape.value());
     }
 }

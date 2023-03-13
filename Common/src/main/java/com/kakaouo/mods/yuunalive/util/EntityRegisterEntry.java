@@ -9,3 +9,4 @@ import java.util.concurrent.CompletableFuture;
 public record EntityRegisterEntry<T extends Entity>(
     EntityType.Builder<T> builder, ResourceLocation location, CompletableFuture<EntityType<T>> callback
 ) { }
+

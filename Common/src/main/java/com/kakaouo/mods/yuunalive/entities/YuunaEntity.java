@@ -25,6 +25,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +47,10 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
         super.initCustomGoals();
         this.goalSelector.addGoal(14, new YuunaLivePlayerTravelGoal<>(this));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Monster.class, 0,
-                false, false, this::canAttack
+            false, false, this::canAttack
         ));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Raider.class, 0,
-                false, false, this::canAttack
+            false, false, this::canAttack
         ));
     }
 
@@ -73,11 +74,13 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
         return false;
     }
 
+    // Renamed from `killed()` to `wasKilled()` while the killed entity is not this entity?
     @Override
-    public void killed(ServerLevel world, LivingEntity other) {
-        super.killed(world, other);
+    public boolean wasKilled(@NotNull ServerLevel world, @NotNull LivingEntity other) {
+        boolean result = super.wasKilled(world, other);
         var effect = new MobEffectInstance(MobEffects.REGENERATION, 200, 2, false, true);
-        addEffect(effect);
+        this.addEffect(effect);
+        return result;
     }
 
     @Override
@@ -86,7 +89,7 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
         nbt.putBoolean("WantsToAdventure", wantsToAdventure);
 
         BlockPos target = travelTarget;
-        if(target != null) {
+        if (target != null) {
             nbt.put("TravelTarget", NbtUtils.writeBlockPos(target));
         }
     }
@@ -94,11 +97,11 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
     @Override
     public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        if(nbt.contains("WantsToAdventure", Tag.TAG_BYTE)) {
+        if (nbt.contains("WantsToAdventure", Tag.TAG_BYTE)) {
             setWantsToAdventure(nbt.getBoolean("WantsToAdventure"));
         }
 
-        if(nbt.contains("TravelTarget")) {
+        if (nbt.contains("TravelTarget")) {
             setTravelTarget(NbtUtils.readBlockPos(nbt.getCompound("TravelTarget")));
         }
     }
@@ -139,31 +142,29 @@ public class YuunaEntity extends YuunaLivePlayerEntity implements Travellable {
     @Override
     public void tick() {
         super.tick();
-        if(!(level instanceof ServerLevel sw)) return;
+        if (!(level instanceof ServerLevel sw)) return;
 
-        if(isAlive()) {
+        if (isAlive()) {
             LivingEntity target = getTarget();
-            if(target != null && target.isDeadOrDying()) {
+            if (target != null && target.isDeadOrDying()) {
                 setTarget(null);
                 var effect = new MobEffectInstance(MobEffects.REGENERATION, 200, 1, false, true);
                 addEffect(effect);
             }
 
-            if(!wantsToAdventure) {
-                if (getRandom().nextInt(100) == 0) {
-                    // Minecraft has changed the API for locating structures since 1.18.2...
-                    var id = getRandomStructureType();
-                    var feature = sw.registryAccess().registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY)
-                            .get(id);
+            if (!wantsToAdventure) {
+                if (this.getRandom().nextInt(100) == 0) {
+                    ResourceLocation id = this.getRandomStructureType();
+                    var feature = sw.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY).get(id);
                     if (feature == null) {
-                        YuunaLive.logger.warn("feature is null! Trying to find structure: " + id.toString());
+                        YuunaLive.LOGGER.warn("feature is null! Trying to find structure: " + id.toString());
                     } else {
                         var result = sw.getChunkSource().getGenerator()
-                                .findNearestMapFeature(sw, HolderSet.direct(Holder.direct(feature)), blockPosition(), 12, false);
+                            .findNearestMapStructure(sw, HolderSet.direct(Holder.direct(feature)), blockPosition(), 12, false);
 
                         if (result != null) {
                             BlockPos found = result.getFirst();
-                            if(travelTarget != null && !travelTarget.equals(found)) {
+                            if (travelTarget != null && !travelTarget.equals(found)) {
                                 setTravelTarget(found);
                                 wantsToAdventure = true;
                             }
