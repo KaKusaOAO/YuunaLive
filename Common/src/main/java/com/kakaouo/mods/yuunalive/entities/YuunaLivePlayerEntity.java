@@ -6,6 +6,7 @@ import com.kakaouo.mods.yuunalive.annotations.PlayerName;
 import com.kakaouo.mods.yuunalive.annotations.PlayerNickname;
 import com.kakaouo.mods.yuunalive.annotations.PlayerSkin;
 import com.kakaouo.mods.yuunalive.entities.ai.goal.*;
+import com.kakaouo.mods.yuunalive.util.Texts;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.data.loot.LootTableProvider;
@@ -217,12 +218,12 @@ public abstract class YuunaLivePlayerEntity extends PathfinderMob implements Ran
 
     @Override
     public Component getName() {
-        MutableComponent playerName = new TextComponent(getPlayerName());
+        MutableComponent playerName = Texts.literal(getPlayerName());
         String nickname = getNickName();
-        MutableComponent nickTag = new TextComponent("");
+        MutableComponent nickTag = Texts.literal("");
 
         if(nickname != null) {
-            MutableComponent nickName = new TextComponent(getNickName());
+            MutableComponent nickName = Texts.literal(getNickName());
             nickName.setStyle(nickName.getStyle().withColor(getNickNameColor()));
 
             if(this instanceof YuunaEntity) {
@@ -230,7 +231,7 @@ public abstract class YuunaLivePlayerEntity extends PathfinderMob implements Ran
                 nickName.withStyle(ChatFormatting.BOLD);
             }
 
-            nickTag = nickTag.append(new TranslatableComponent("[%s] ", nickName).withStyle(ChatFormatting.GREEN));
+            nickTag = nickTag.append(Texts.translatable("[%s] ", nickName).withStyle(ChatFormatting.GREEN));
         }
 
         return nickTag.append(playerName);
