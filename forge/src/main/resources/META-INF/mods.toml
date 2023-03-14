@@ -1,7 +1,5 @@
 modLoader = "javafml"
 loaderVersion = "[41,)"
-license = "MIT"
-
 license="Copyright 2022 (c) Kaka. All rights reserved."
 
 [[mods]]

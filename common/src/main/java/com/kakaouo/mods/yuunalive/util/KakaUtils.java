@@ -22,7 +22,8 @@ public enum KakaUtils {
     }
 
     public static Set<Class<?>> getClassesOfPackage(Package p) {
-        InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream(p.getName().replaceAll("[.]", "/"));
+        InputStream stream = ClassLoader.getSystemClassLoader()
+            .getResourceAsStream(p.getName().replaceAll("[.]", "/"));
         if(stream == null) {
             YuunaLive.LOGGER.warn("Cannot load the classes list from the package " + p + "!");
             return new HashSet<>();

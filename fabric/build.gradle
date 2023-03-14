@@ -22,7 +22,7 @@ dependencies {
     // modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
 
     modRuntimeOnly "mcp.mobius.waila:wthit:fabric-${rootProject.wthit_version}"
-    modRuntimeOnly "lol.bai:badpackets:fabric-0.2.0"
+    modRuntimeOnly "lol.bai:badpackets:fabric-0.1.3"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }

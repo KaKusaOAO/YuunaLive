@@ -65,7 +65,20 @@ public final class ModEntityType {
     private static CompletableFuture<Void> registerAllByReflectionAsync() {
         YuunaLive.LOGGER.info("Looking for entity classes...");
         List<CompletableFuture<?>> futures = new ArrayList<>();
-        for(Class<?> clz : KakaUtils.getClassesOfPackage(ModEntityType.class.getPackage())) {
+
+        // Use fallback for now
+        Class<?>[] classes = new Class<?>[] {
+            GinaChenEntity.class,
+            KakaEntity.class,
+            KiuryilEntity.class,
+            YunariEntity.class,
+            YuruEntity.class,
+            YuunaEntity.class,
+            YCTainEntity.class,
+            Support1NoEntity.class
+        };
+
+        for(Class<?> clz : classes /* KakaUtils.getClassesOfPackage(ModEntityType.class.getPackage()) */) {
             if(YuunaLivePlayerEntity.class.isAssignableFrom(clz) && !clz.equals(YuunaLivePlayerEntity.class)) {
                 Class<? extends YuunaLivePlayerEntity> c = (Class<? extends YuunaLivePlayerEntity>) clz;
                 boolean exclude = false;

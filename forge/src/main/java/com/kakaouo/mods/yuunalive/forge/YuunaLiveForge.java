@@ -69,7 +69,7 @@ public class YuunaLiveForge implements Platform {
 
     private void registerEntityTypes(RegisterEvent event) {
         seenEntityTypeRegisterEvent = true;
-        YuunaLive.LOGGER.info("Registering entity types on Forge ...");
+        YuunaLive.LOGGER.info("Registering entity types on Forge...");
 
         for (EntityRegisterEntry<?> entry : ModRegistries.ENTITIES) {
             this.registerEntityType(event, entry);
