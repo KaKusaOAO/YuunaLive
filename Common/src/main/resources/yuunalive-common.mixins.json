@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.kakaouo.mods.yuunalive.forge.mixin",
+  "package": "com.kakaouo.mods.yuunalive.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
   ],
@@ -9,6 +9,5 @@
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "refmap": "${refmap_target}refmap.json"
+  }
 }

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "mixin": [
+    "yuunalive.mixins.json",
+    "yuunalive-common.mixins.json"
+  ],
+  "quilt_loader": {
+    "group": "${group}",
+    "id": "yuunalive",
+    "version": "${version}",
+    "name": "YuunaLive",
+    "description": "",
+    "authors": [
+      "Kaka"
+    ],
+    "contact": {
+      "sources": "https://github.com/KaKusaOAO/YuunaLive"
+    },
+    "license": "MIT",
+    "icon": "assets/yuunalive/icon.png",
+    "intermediate_mappings": "net.fabricmc:intermediary",
+    "environment": "*",
+    "entrypoints": {
+      "client": [
+        "com.kakaouo.mods.yuunalive.quilt.YuunaLiveQuiltClient"
+      ],
+      "main": [
+        "com.kakaouo.mods.yuunalive.quilt.YuunaLiveQuilt"
+      ]
+    },
+    "depends": [
+      {
+        "id": "quilt_loader",
+        "version": "*"
+      },
+      {
+        "id": "quilt_base",
+        "version": "*"
+      },
+      {
+        "id": "minecraft",
+        "version": ">=1.19"
+      },
+      {
+        "id": "architectury",
+        "version": ">=5.12.42"
+      }
+    ]
+  }
+}

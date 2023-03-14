@@ -1,11 +1,35 @@
-modLoader="javafml"
-loaderVersion="[40,)"
+modLoader = "javafml"
+loaderVersion = "[41,)"
+license = "MIT"
+
 license="Copyright 2022 (c) Kaka. All rights reserved."
 
 [[mods]]
-modId="${mod_id}"
+modId="yuunalive"
 version="${version}"
-displayName="${mod_name}"
+displayName="YuunaLive"
 description='''
-${mod_name} ${version} by ${mod_author}.
+YuunaLive ${version} by Kaka.
 '''
+#logoFile = ""
+
+[[dependencies.yuunalive]]
+modId = "forge"
+mandatory = true
+versionRange = "[41,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.yuunalive]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.19,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.yuunalive]]
+modId = "architectury"
+mandatory = false
+versionRange = "[5.12.42,)"
+ordering = "AFTER"
+side = "BOTH"

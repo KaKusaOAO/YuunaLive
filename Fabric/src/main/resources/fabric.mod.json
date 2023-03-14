@@ -23,17 +23,11 @@
   },
   "mixins": [
     "yuunalive.mixins.json",
-    "yuunalive.fabric.mixins.json"
+    "yuunalive-common.mixins.json"
   ],
   "depends": {
     "fabricloader": "*",
     "fabric": "*",
-    "minecraft": ">=1.18.2"
-  },
-  "custom": {
-    "waila:plugins": {
-      "id": "yuunalive:waila_plugin",
-      "initializer": "com.kakaouo.mods.yuunalive.waila.YuunaLiveWailaPlugin"
-    }
+    "minecraft": ">=1.19"
   }
 }
