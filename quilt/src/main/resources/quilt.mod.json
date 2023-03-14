@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schema_version": 1,
   "mixin": [
     "yuunalive.mixins.json",
     "yuunalive-common.mixins.json"
@@ -21,10 +21,10 @@
     "intermediate_mappings": "net.fabricmc:intermediary",
     "environment": "*",
     "entrypoints": {
-      "client": [
+      "client_init": [
         "com.kakaouo.mods.yuunalive.quilt.YuunaLiveQuiltClient"
       ],
-      "main": [
+      "init": [
         "com.kakaouo.mods.yuunalive.quilt.YuunaLiveQuilt"
       ]
     },
@@ -40,10 +40,6 @@
       {
         "id": "minecraft",
         "version": ">=1.19"
-      },
-      {
-        "id": "architectury",
-        "version": ">=5.12.42"
       }
     ]
   }

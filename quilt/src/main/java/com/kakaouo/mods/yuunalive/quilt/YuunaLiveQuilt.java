@@ -7,14 +7,13 @@ import net.fabricmc.api.EnvType;
 import net.minecraft.SharedConstants;
 import org.jetbrains.annotations.NotNull;
 import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.loader.api.QuiltLoader;
 import org.quiltmc.loader.api.minecraft.MinecraftQuiltLoader;
 import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
 
 public class YuunaLiveQuilt implements ModInitializer, FabricLikePlatform {
     @Override
     public @NotNull Type getPlatformType() {
-        return Type.FABRIC;
+        return Type.QUILT;
     }
 
     @Override
