@@ -6,9 +6,10 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
+
 apply plugin: 'java'
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
@@ -77,11 +78,11 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5-SNAPSHOT:processor'
     compileOnly project(":Common")
 
+    // FIXME: Why can't it get compiled?
     // WTHIT
-    compileOnly "mcp.mobius.waila:wthit-api:mojmap-${wthit_version}"
-    compileOnly "mcp.mobius.waila:wthit-api:forge-${wthit_version}"
+    compileOnly fg.deobf("mcp.mobius.waila:wthit-api:forge-${wthit_version}")
     runtimeOnly fg.deobf("mcp.mobius.waila:wthit:forge-${wthit_version}")
-    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.1.2") // ?
+    runtimeOnly fg.deobf("lol.bai:badpackets:forge-0.2.0") // ?
 }
 
 tasks.withType(JavaCompile) {
